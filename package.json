@@ -1,0 +1,41 @@
+{
+  "name": "appraisal-tools",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "private": true,
+  "version": "1.0.0",
+  "description": "Приложение для автоматизации составления отчётов об оценке",
+  "homepage": "https://github.com/zed-damasky/appraisal-tools#readme",
+  "bugs": {
+    "url": "https://github.com/zed-damasky/appraisal-tools/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zed-damasky/appraisal-tools.git"
+  },
+  "license": "MIT",
+  "author": "Zed Damasky",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "dev:server": "npm run dev --workspace=apps/server",
+    "dev:client": "npm run dev --workspace=apps/client",
+    "build:server": "npm run build --workspace=apps/server",
+    "build:client": "npm run build --workspace=apps/client",
+    "lint": "eslint . --ext .ts,.tsx",
+    "format": "prettier --write .",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "eslint": "^10.11.0",
+    "husky": "^9.1.7",
+    "prettier": "^3.9.8",
+    "ts-to-zod": "^5.1.0",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "zod": "^4.6.5"
+  }
+}

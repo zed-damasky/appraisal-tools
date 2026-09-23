@@ -1,0 +1,20 @@
+{
+  "name": "@appraisal/server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "build": "bun build src/index.ts --compile --outfile=../../build/app.exe"
+  },
+  "dependencies": {
+    "chrome-finder": "^1.0.7",
+    "hono": "^4.13.8",
+    "puppeteer-core": "^25.11.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.2",
+    "typescript": "^7.0.2"
+  }
+}
