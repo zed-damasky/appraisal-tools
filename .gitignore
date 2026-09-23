@@ -20,3 +20,5 @@ Thumbs.db
 bun.lockb
 
 *.tsbuildinfo
+
+.husky/

@@ -26,7 +26,8 @@
     "build:client": "npm run build --workspace=apps/client",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test": "echo \"No tests specified\" && exit 0"
   },
   "devDependencies": {
     "eslint": "^10.11.0",
