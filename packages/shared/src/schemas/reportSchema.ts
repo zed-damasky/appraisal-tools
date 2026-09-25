@@ -35,8 +35,8 @@ export const reportFilesSchema = z.object({
   pdf: z.string().optional(),
   doc: z.string().optional(),
   xls: z.string().optional(),
-  photos: z.array(z.string()),
-  docs: z.array(z.string()),
+  photos: z.array(z.string()).default([]),
+  docs: z.array(z.string()).default([]),
 });
 
 export const marketAnalysisSchema = z.object({
@@ -96,29 +96,50 @@ export const appraisingReportTaskSchema = z.object({
 export const appraisingReportMetadataSchema = z.object({
   id: z.uuid("ID должен быть UUID"),
   reportSequenceNumber: z.string().min(1, "Укажите порядковый номер отчёта"),
-  reportDatePreperation: z.string().min(1, "Укажите дату подготовки отчёта"),
+  reportDatePreperation: z.string().min(1, "Укажите дату составления отчёта"),
   appraisingContractId: z.uuid("ID договора должен быть UUID"),
   appraisingReportId: z.uuid("ID отчёта должен быть UUID"),
 });
 
-export const appraisingReportIndexDataSchema = appraisingReportMetadataSchema.extend({
-  title: z.string().min(1, "Укажите название отчёта"),
-  status: reportStatusSchema,
-  objectTypes: z
-    .array(objectTypeSchema)
-    .min(1, "Должен быть указан хотя бы один тип объекта"),
-  clientName: z.string().min(1, "Укажите имя заказчика"),
-  reportDir: z.string().min(1, "Путь к папке отчёта обязателен"),
-  createdAt: z.string().min(1, "Укажите дату создания"),
-  updatedAt: z.string().min(1, "Укажите дату обновления"),
-});
+export const appraisingReportIndexDataSchema =
+  appraisingReportMetadataSchema.extend({
+    title: z.string().min(1, "Укажите название отчёта"),
+    status: reportStatusSchema,
+    objectTypes: z
+      .array(objectTypeSchema)
+      .min(1, "Должен быть указан хотя бы один тип объекта"),
+    clientName: z.string().min(1, "Укажите заказчика"),
+    reportDir: z.string().min(1, "Путь к папке отчёта обязателен"),
+    createdAt: z.string().min(1, "Укажите дату создания"),
+    updatedAt: z.string().min(1, "Укажите дату обновления"),
+  });
+
+export const createAppraisingReportSchema = appraisingReportIndexDataSchema
+  .pick({
+    clientName: true,
+    reportDir: true,
+  })
+  .extend({
+    reportSequenceNumber: z
+      .string()
+      .min(1, "Номер отчёта обязателен")
+      .max(50, "Номер отчёта слишком длинный")
+      .transform((val) => val.replace(/[<>:"/\\|?*]/g, "").trim())
+      .refine(
+        (val) => val.length > 0,
+        "Номер отчёта не может состоять только из запрещённых символов",
+      ),
+    appraisingContractId: z.uuid("ID договора должен быть UUID"),
+  });
 
 export const appraisingReportSchema = z.object({
   id: z.uuid("ID отчёта должен быть UUID"),
   status: reportStatusSchema,
   metadata: appraisingReportMetadataSchema,
   reportTask: appraisingReportTaskSchema,
-  marketAnalysis: z.array(marketAnalysisSchema).min(1, "В отчёте должен быть указан хотя бы один анализ рынка"),
+  marketAnalysis: z
+    .array(marketAnalysisSchema)
+    .min(1, "В отчёте должен быть указан хотя бы один анализ рынка"),
   appraisers: z
     .array(appraiserSchema)
     .min(1, "В отчёте должен быть указан хотя бы один оценщик"),
@@ -150,5 +171,8 @@ export type AppraisingReportTaskInput = z.infer<
 export type AppraisingReportMetadataInput = z.infer<
   typeof appraisingReportMetadataSchema
 >;
-export type AppraisingReportIndexDataInput = z.infer<typeof appraisingReportIndexDataSchema>;
+export type AppraisingReportIndexDataInput = z.infer<
+  typeof appraisingReportIndexDataSchema
+>;
 export type AppraisingReportInput = z.infer<typeof appraisingReportSchema>;
+

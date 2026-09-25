@@ -15,6 +15,7 @@ import type {
   Settings,
   AppraisingReport,
   AppraisingReportIndexData,
+  ObjectType,
 } from "@appraisal/types";
 
 export interface CheckDirectoryResult {
@@ -207,10 +208,9 @@ export async function getReport(
 ): Promise<AppraisingReport | null> {
   try {
     const index = await getReportsIndex(baseDir);
-
     const reportIndex = index.find((item) => item.id === reportId);
+
     if (!reportIndex) {
-      console.warn(`${reportId} не найден в индексе`);
       return null;
     }
 
@@ -219,16 +219,23 @@ export async function getReport(
       `rpt_${reportId}.json`,
     );
 
-    return await readJson<AppraisingReport>(reportFilePath, {} as AppraisingReport);
+    if (!existsSync(reportFilePath)) {
+      return null;
+    }
+
+    return await readJson<AppraisingReport>(
+      reportFilePath,
+      {} as AppraisingReport,
+    );
   } catch (getReportError) {
-    console.error(`${reportId}:`, getReportError);
+    console.error(`Ошибка получения отчёта ${reportId}:`, getReportError);
     return null;
   }
 }
 
 export async function saveReport(
   baseDir: string,
-  report: AppraisingReport,
+  report: AppraisingReport & { title?: string }, // временно расширяем тип
   clientName: string,
 ): Promise<void> {
   try {
@@ -241,16 +248,15 @@ export async function saveReport(
     await writeJson(reportFilePath, report);
 
     const index = await getReportsIndex(baseDir);
-
     const objectTypes = Array.from(
       new Set(report.objects.map((obj) => obj.objectType)),
-    );
+    ) as ObjectType[];;
 
     const existingIndex = index.findIndex((item) => item.id === report.id);
 
     const indexData: AppraisingReportIndexData = {
       ...report.metadata,
-      title: report.metadata.reportSequenceNumber,
+      title: report.title || report.metadata.reportSequenceNumber,
       status: report.status,
       objectTypes,
       clientName,
@@ -267,7 +273,37 @@ export async function saveReport(
 
     await saveReportsIndex(baseDir, index);
   } catch (saveReportError) {
-    console.error(`${report.id}:`, saveReportError);
+    console.error(`Ошибка сохранения отчёта ${report.id}:`, saveReportError);
     throw saveReportError;
+  }
+}
+
+export async function deleteReport(
+  baseDir: string,
+  reportId: string,
+): Promise<boolean> {
+  try {
+    const index = await getReportsIndex(baseDir);
+    const reportIndex = index.find((item) => item.id === reportId);
+
+    if (!reportIndex) {
+      return false;
+    }
+
+    const reportFilePath = path.join(
+      reportIndex.reportDir,
+      `rpt_${reportId}.json`,
+    );
+    if (existsSync(reportFilePath)) {
+      await unlink(reportFilePath);
+    }
+
+    const newIndex = index.filter((item) => item.id !== reportId);
+    await saveReportsIndex(baseDir, newIndex);
+
+    return true;
+  } catch (deleteReportError) {
+    console.error(`Ошибка удаления отчёта ${reportId}:`, deleteReportError);
+    throw deleteReportError;
   }
 }

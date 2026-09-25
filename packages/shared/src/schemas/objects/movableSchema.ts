@@ -4,7 +4,7 @@ import {
   depreciationSchema,
   locationCharacteristicsSchema,
   rightsOnMovableObjectSchema,
-} from ".";
+} from "./baseSchema";
 
 export const typeOfCarsSchema = z.enum(
   [

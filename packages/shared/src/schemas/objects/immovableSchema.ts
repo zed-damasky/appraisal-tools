@@ -1,12 +1,10 @@
 import { z } from "zod";
-import { documentSchema } from "..";
 import {
   baseAppraisalObjectSchema,
   depreciationSchema,
   locationCharacteristicsSchema,
   rightsOnImmovableObjectSchema,
-  visualInspectionSchema,
-} from ".";
+} from "./baseSchema";
 
 export const specialAreaSchema = z.object({
   name: z.string().min(1, "Укажите название площади"),
