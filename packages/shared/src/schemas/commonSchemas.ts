@@ -21,7 +21,6 @@ export const valuationApproachSchema = z.enum([
 ]);
 
 export const settingsSchema = z.object({
-  baseDir: z.string().min(1, "Укажите базовую директорию"),
   port: z.number().int().min(1024).max(65535),
   theme: z.enum(["light", "dark"]),
 });

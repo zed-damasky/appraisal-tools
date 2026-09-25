@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   appraiserSchema,
+  objectTypeSchema,
   reportStatusSchema,
   valuationApproachSchema,
 } from ".";
@@ -29,7 +30,7 @@ export const specificRequirementSchema = z.object({
 });
 
 export const reportFilesSchema = z.object({
-  baseDir: z.string().min(1, "Укажите базовую директорию"),
+  reportDir: z.string().min(1, "Укажите директорию отчета"),
   folderName: z.string().min(1, "Укажите имя папки отчёта"),
   pdf: z.string().optional(),
   doc: z.string().optional(),
@@ -100,12 +101,24 @@ export const appraisingReportMetadataSchema = z.object({
   appraisingReportId: z.uuid("ID отчёта должен быть UUID"),
 });
 
+export const appraisingReportIndexDataSchema = appraisingReportMetadataSchema.extend({
+  title: z.string().min(1, "Укажите название отчёта"),
+  status: reportStatusSchema,
+  objectTypes: z
+    .array(objectTypeSchema)
+    .min(1, "Должен быть указан хотя бы один тип объекта"),
+  clientName: z.string().min(1, "Укажите имя заказчика"),
+  reportDir: z.string().min(1, "Путь к папке отчёта обязателен"),
+  createdAt: z.string().min(1, "Укажите дату создания"),
+  updatedAt: z.string().min(1, "Укажите дату обновления"),
+});
+
 export const appraisingReportSchema = z.object({
   id: z.uuid("ID отчёта должен быть UUID"),
   status: reportStatusSchema,
   metadata: appraisingReportMetadataSchema,
   reportTask: appraisingReportTaskSchema,
-  marketAnalysis: marketAnalysisSchema,
+  marketAnalysis: z.array(marketAnalysisSchema).min(1, "В отчёте должен быть указан хотя бы один анализ рынка"),
   appraisers: z
     .array(appraiserSchema)
     .min(1, "В отчёте должен быть указан хотя бы один оценщик"),
@@ -137,4 +150,5 @@ export type AppraisingReportTaskInput = z.infer<
 export type AppraisingReportMetadataInput = z.infer<
   typeof appraisingReportMetadataSchema
 >;
+export type AppraisingReportIndexDataInput = z.infer<typeof appraisingReportIndexDataSchema>;
 export type AppraisingReportInput = z.infer<typeof appraisingReportSchema>;

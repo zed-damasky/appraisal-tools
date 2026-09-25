@@ -1,7 +1,7 @@
-import { Appraiser, AppraisingObject, ReportStatus, ValuationApproach } from ".";
+import { Appraiser, AppraisingObject, ObjectType, ReportStatus, ValuationApproach } from ".";
 
 export interface ReportFiles {
-  baseDir: string;
+  reportDir: string;
   folderName: string;
   pdf?: string;
   doc?: string;
@@ -82,12 +82,22 @@ export interface AppraisingReportMetadata {
   appraisingReportId: string;
 }
 
+export interface AppraisingReportIndexData extends AppraisingReportMetadata {
+  title: string;
+  status: ReportStatus;
+  objectTypes: ObjectType[];
+  clientName: string;
+  reportDir: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface AppraisingReport {
   id: string;
   status: ReportStatus;
   metadata: AppraisingReportMetadata;
   reportTask: AppraisingReportTask;
-  marketAnalysis: MarketAnalysis;
+  marketAnalysis: MarketAnalysis[];
   appraisers: Appraiser[];
   files: ReportFiles;
   valuationResults: ValuationResults;

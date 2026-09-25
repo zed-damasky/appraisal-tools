@@ -1,4 +1,6 @@
 
+import { Document } from "..";
+
 export interface Rights {
   typeOfRights: string;
   ownership: string;

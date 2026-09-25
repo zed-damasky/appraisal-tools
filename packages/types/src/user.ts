@@ -1,4 +1,4 @@
-import { InsuranceInformation, Organisation, Persona } from ".";
+import { InsuranceInformation, Organisation, Persona, Document} from ".";
 
 export interface QualificationCertificate {
   issuedBy: string;
@@ -45,28 +45,29 @@ export interface AppraisingProviderPrivatePracticeInformation {
 }
 
 export interface Appraiser extends Persona {
-  address: string;
+  address?: string;
 
   passwordHash: string;
+  recoveryWordsHashes: string[];
 
-  taxIdentificationNumber: string;
+  taxIdentificationNumber?: string;
 
-  diploma: Diploma;
+  diploma?: Diploma;
 
-  qualificationCertificate: QualificationCertificate[];
+  qualificationCertificate?: QualificationCertificate[];
 
-  workExperienceStartYear: string;
+  workExperienceStartYear?: string;
 
-  insurance: InsuranceInformation;
+  insurance?: InsuranceInformation;
 
-  selfRegulatoryInfo: SelfRegulatoryInformation;
+  selfRegulatoryInfo?: SelfRegulatoryInformation;
 
-  personalDocumentList: Document[];
+  personalDocumentList?: Document[];
 
   hasPrivatePractice: boolean;
   privatePracticeInformation?: AppraisingProviderPrivatePracticeInformation;
 
-  defaultWorkplaceId: string;
+  defaultWorkplaceId?: string;
 
-  workPlaceList: AppraisingProviderCompany[];
+  workPlaceList?: AppraisingProviderCompany[];
 }

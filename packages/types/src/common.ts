@@ -4,7 +4,6 @@ export type ObjectType = "immovable_property" | "movable_property" | "business";
 export type ValuationApproach = "comparative" | "income" | "cost";
 
 export interface Settings {
-  baseDir: string;
   port: number;
   theme: "light" | "dark";
 }
