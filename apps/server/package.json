@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "bun run --watch src/index.ts",
-    "build": "bun build src/index.ts --compile --outfile=../../build/app.exe"
+    "build": "bun build src/index.ts --compile --outfile=../../build/app.exe",
+    "test": "bun test",
+    "test:watch": "bun test --watch"
   },
   "dependencies": {
     "chrome-finder": "^1.0.7",
