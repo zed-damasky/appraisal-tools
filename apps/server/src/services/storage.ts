@@ -16,6 +16,7 @@ import type {
   AppraisingReport,
   AppraisingReportIndexData,
   ObjectType,
+  AppraisingContract,
 } from "@appraisal/types";
 
 export interface CheckDirectoryResult {
@@ -83,6 +84,10 @@ export async function ensureAppStructure(baseDir: string) {
         theme: "light" as const,
       };
       await writeJson(settingsPath, defaultSettings);
+    }
+    const contractsPath = path.join(baseDir, "contracts.json");
+    if (!existsSync(contractsPath)) {
+      await writeJson(contractsPath, []);
     }
 
     const reportsDir = path.join(baseDir, "reports");
@@ -250,7 +255,7 @@ export async function saveReport(
     const index = await getReportsIndex(baseDir);
     const objectTypes = Array.from(
       new Set(report.objects.map((obj) => obj.objectType)),
-    ) as ObjectType[];;
+    ) as ObjectType[];
 
     const existingIndex = index.findIndex((item) => item.id === report.id);
 
@@ -306,4 +311,20 @@ export async function deleteReport(
     console.error(`Ошибка удаления отчёта ${reportId}:`, deleteReportError);
     throw deleteReportError;
   }
+}
+
+export async function getContracts(
+  baseDir: string,
+): Promise<AppraisingContract[]> {
+  const contractsPath = path.join(baseDir, "contracts.json");
+  return await readJson<AppraisingContract[]>(contractsPath, []);
+}
+
+export async function saveContracts(
+  baseDir: string,
+  contracts: AppraisingContract[],
+): Promise<void> {
+  const contractsPath = path.join(baseDir, "contracts.json");
+  await backupJson(contractsPath);
+  await writeJson(contractsPath, contracts);
 }

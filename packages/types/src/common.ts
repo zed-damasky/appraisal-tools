@@ -67,6 +67,6 @@ export interface AppraisingContract {
   id: string;
   contractNumber: string;
   contractDate: string;
-  appraisingReportId: string[];
-  contractReward: number;
+  //appraisingReportId: string[];
+  //contractReward: number;
 }

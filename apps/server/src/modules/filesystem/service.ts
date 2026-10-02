@@ -79,16 +79,12 @@ export async function checkDirectory(
     try {
       await access(dirPath, constants.R_OK);
       isReadable = true;
-    } catch {
-      ///////////////
-    }
+    } catch {}
 
     try {
       await access(dirPath, constants.W_OK);
       isWritable = true;
-    } catch {
-      ///////////////
-    }
+    } catch {}
 
     const markerPath = path.join(dirPath, MARKER_FILENAME);
     const hasMarker = existsSync(markerPath);

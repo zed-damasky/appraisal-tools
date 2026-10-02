@@ -82,11 +82,3 @@ export const insuranceInformationSchema = z.object({
   validDateTo: z.string().min(1, "Укажите окончание действия"),
   insuredAmount: z.string().min(1, "Укажите страховую сумму"),
 });
-
-export const appraisingContractSchema = z.object({
-  id: z.uuid(),
-  contractNumber: z.string().min(1, "Укажите номер договора"),
-  contractDate: z.string().min(1, "Укажите дату договора"),
-  appraisingReportId: z.array(z.uuid()),
-  contractReward: z.number().min(0, "Стоимость не может быть отрицательной"),
-});
