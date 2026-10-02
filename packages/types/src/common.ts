@@ -18,10 +18,20 @@ export interface Contacts {
   viber?: string;
 }
 
+export enum AllowedMimeType {
+  JPEG = "image/jpeg",
+  PNG = "image/png",
+  WEBP = "image/webp",
+  HEIC = "image/heic", 
+  PDF = "application/pdf",
+}
+
 export interface Document {
   id: string;
   name: string;
   path: string;
+  mimeType: AllowedMimeType;
+  size?: number;
 }
 
 export interface Persona {

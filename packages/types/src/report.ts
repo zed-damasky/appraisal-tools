@@ -6,8 +6,8 @@ export interface ReportFiles {
   pdf?: string;
   doc?: string;
   xls?: string;
-  photos: string[];
-  docs: string[];
+  photos: Document[];
+  docs: Document[];
 }
 
 export interface ValueVariant {

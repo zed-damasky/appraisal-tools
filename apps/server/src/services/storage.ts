@@ -235,7 +235,7 @@ export async function getReport(
 
 export async function saveReport(
   baseDir: string,
-  report: AppraisingReport & { title?: string }, // временно расширяем тип
+  report: AppraisingReport & { title?: string },
   clientName: string,
 ): Promise<void> {
   try {

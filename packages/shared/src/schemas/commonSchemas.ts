@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { AllowedMimeType } from "@appraisal/types";
 
 export const reportStatusSchema = z.enum([
   "draft",
@@ -35,10 +36,13 @@ export const contactsSchema = z.object({
   viber: z.string().optional(),
 });
 
+export const allowedMimeTypeSchema = z.enum(AllowedMimeType);
+
 export const documentSchema = z.object({
   id: z.uuid("ID документа должен быть UUID"),
   name: z.string().min(1, "Название документа обязательно"),
   path: z.string().min(1, "Путь к документу обязателен"),
+  mimeType: allowedMimeTypeSchema,
 });
 
 export const personaSchema = z.object({

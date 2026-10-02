@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   appraiserSchema,
+  documentSchema,
   objectTypeSchema,
   reportStatusSchema,
   valuationApproachSchema,
@@ -35,8 +36,8 @@ export const reportFilesSchema = z.object({
   pdf: z.string().optional(),
   doc: z.string().optional(),
   xls: z.string().optional(),
-  photos: z.array(z.string()).default([]),
-  docs: z.array(z.string()).default([]),
+  photos: z.array(documentSchema).default([]),
+  docs: z.array(documentSchema).default([]),
 });
 
 export const marketAnalysisSchema = z.object({
@@ -175,4 +176,3 @@ export type AppraisingReportIndexDataInput = z.infer<
   typeof appraisingReportIndexDataSchema
 >;
 export type AppraisingReportInput = z.infer<typeof appraisingReportSchema>;
-

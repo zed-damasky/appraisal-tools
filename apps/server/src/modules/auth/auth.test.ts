@@ -431,6 +431,8 @@ describe("Auth Module API", () => {
           id: "550e8400-e29b-41d4-a716-446655440001",
           name: "Документ",
           path: "/docs/документ.pdf",
+          mimeType: "application/pdf",
+          size: 1024,
         },
       ],
     };
