@@ -83,7 +83,7 @@ export interface Building extends ImmovableObject {
   typeOfBuilding: "living" | "not_living";
   yearOfConstruction: number;
   durabilityClass: number;
-  locateLandPlot: LandPlot;
+  locateLandPlotId?: LandPlot;
   aboveFloors: number;
   undergroundFloors: number;
   foundation: ConstructionElement[];
@@ -109,7 +109,7 @@ export interface PremisesObject extends ImmovableObject {
     | "room_in_building"
     | "garage_in_building"
     | "other";
-  locateBuilding: Building;
+  locateBuildingId?: Building;
   interiorCovers: InteriorFinishing;
   interiorWalls: ConstructionElement[];
   windows: ConstructionElement[];

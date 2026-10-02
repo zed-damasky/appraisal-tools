@@ -106,7 +106,7 @@ export const buildingSchema = immovableObjectSchema.extend({
   durabilityClass: z
     .number()
     .int("Группа капитальности должна быть целым числом"),
-  locateLandPlot: z.lazy(() => landPlotSchema),
+  locateLandPlotId: z.uuid("ID земельного участка должен быть UUID").optional(),
   aboveFloors: z
     .number()
     .int("Количество надземных этажей должно быть целым числом")
@@ -142,7 +142,7 @@ export const premisesObjectSchema = immovableObjectSchema.extend({
     ],
     { message: "Выберите тип помещения из списка" },
   ),
-  locateBuilding: z.lazy(() => buildingSchema),
+  locateBuildingId: z.uuid("ID здания должен быть UUID").optional(),
   interiorCovers: interiorFinishingSchema,
   interiorWalls: z.array(constructionElementSchema),
   windows: z.array(constructionElementSchema),
