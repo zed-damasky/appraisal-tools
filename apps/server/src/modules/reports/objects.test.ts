@@ -214,7 +214,7 @@ function createTestBuilding(id: string, landPlotId: string) {
     },
     remodeling: {
       hasRemodeling: false,
-      planByDocumentsPath: "",
+      planByDocumentsPath: "Нет",
       description: "Нет",
       canBeComplianced: false,
       costOfComplianceWithPlan: 0,
