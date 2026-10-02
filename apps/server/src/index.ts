@@ -7,6 +7,7 @@ import { ensureAppStructure, getSettings } from "./services/storage";
 import { settingsRoutes } from "./modules/settings/routes";
 import { authRoutes } from "./modules/auth/routes";
 import { filesystemRoutes } from "./modules/filesystem/routes";
+import { filesRoutes } from "./modules/files/routes";
 
 const app = new Hono();
 
@@ -29,6 +30,7 @@ app.get("/api/health", (c) => {
 app.route("/api/settings", settingsRoutes);
 app.route("/api/auth", authRoutes);
 app.route("/api/filesystem", filesystemRoutes);
+app.route("/api/reports", filesRoutes);
 
 async function startServer() {
   const baseDir =
