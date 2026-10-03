@@ -22,3 +22,5 @@ bun.lockb
 *.tsbuildinfo
 
 .husky/
+
+.backup
