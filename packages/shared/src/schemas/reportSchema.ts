@@ -67,15 +67,14 @@ export const valuationResultsSchema = z.object({
 
 export const appraisingReportTaskSchema = z.object({
   id: z.uuid("ID должен быть UUID"),
-  appraisingContractId: z.uuid("ID договора должен быть UUID"),
-  appraisingReportId: z.uuid("ID отчёта должен быть UUID"),
   appraisingDate: z.string().min(1, "Укажите дату оценки"),
+  inspectionDate: z.string().min(1, "Укажите дату осмотра").optional(),
   valueVariants: z
     .array(valueVariantSchema)
-    .min(1, "Должен быть хотя бы один вариант стоимости"),
+    .min(1, "Должен быть хотя бы один тип определяемой стоимости"),
   appraisingPurpose: z.string().min(1, "Укажите цель оценки"),
 
-  commongAssumptions: z.array(appraisingAssumptionSchema),
+  commonAssumptions: z.array(appraisingAssumptionSchema),
   specialAssumptions: z.array(appraisingAssumptionSchema),
   otherAssumptions: z.array(appraisingAssumptionSchema),
 
@@ -92,6 +91,7 @@ export const appraisingReportTaskSchema = z.object({
     .string()
     .min(1, "Укажите внешних специалистов (или 'не привлекались')"),
   specificRequirements: z.array(specificRequirementSchema),
+  additionalResearch: z.string().optional(),
 });
 
 export const appraisingReportMetadataSchema = z.object({

@@ -1,4 +1,10 @@
-import { Appraiser, AppraisingObject, ObjectType, ReportStatus, ValuationApproach } from ".";
+import {
+  Appraiser,
+  AppraisingObject,
+  ObjectType,
+  ReportStatus,
+  ValuationApproach,
+} from ".";
 
 export interface ReportFiles {
   reportDir: string;
@@ -48,30 +54,20 @@ export interface ValuationResults {
 
 export interface AppraisingReportTask {
   id: string;
-
-  appraisingContractId: string;
-  appraisingReportId: string;
-
   appraisingDate: string;
-
+  inspectionDate?: string;
   valueVariants: ValueVariant[];
-
   appraisingPurpose: string;
-
-  commongAssumptions: AppraisingAssumption[];
+  commonAssumptions: AppraisingAssumption[];
   specialAssumptions: AppraisingAssumption[];
   otherAssumptions: AppraisingAssumption[];
-
   appraisingRestrictions: AppraisingRestriction[];
   usingRestrictions: AppraisingRestriction[];
-
   formOfAppraisingReport: "on_paper" | "electronic" | "all";
-
   usersOfReport: string;
-
   externalSpecialist: string;
-
   specificRequirements: SpecificRequirement[];
+  additionalResearch?: string;
 }
 
 export interface AppraisingReportMetadata {

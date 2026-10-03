@@ -217,6 +217,77 @@ describe("Reports Module API", () => {
     });
   });
 
+  describe("PATCH /:id/task", () => {
+    it("должен успешно обновить цель оценки", async () => {
+      const createdReport = await createTestReport();
+
+      const res = await reportsRoutes.request(`/${createdReport.id}/task`, {
+        method: "PATCH",
+        headers: AUTH_HEADERS,
+        body: JSON.stringify({ appraisingPurpose: "Оценка для ипотеки" }),
+      });
+
+      expect(res.status).toBe(200);
+      const data = (await res.json()) as any;
+      expect(data.appraisingPurpose).toBe("Оценка для ипотеки");
+      expect(data.id).toBeDefined(); // Это ID задания, а не отчёта
+    });
+
+    it("должен успешно обновить дату осмотра и дополнительные исследования", async () => {
+      const createdReport = await createTestReport();
+
+      const res = await reportsRoutes.request(`/${createdReport.id}/task`, {
+        method: "PATCH",
+        headers: AUTH_HEADERS,
+        body: JSON.stringify({
+          inspectionDate: "2024-05-20",
+          additionalResearch: "Требуется анализ рынка аренды",
+        }),
+      });
+
+      expect(res.status).toBe(200);
+      const data = (await res.json()) as any;
+      expect(data.inspectionDate).toBe("2024-05-20");
+      expect(data.additionalResearch).toBe("Требуется анализ рынка аренды");
+    });
+
+    it("должен отказать при невалидных данных (пустая цель оценки)", async () => {
+      const createdReport = await createTestReport();
+
+      const res = await reportsRoutes.request(`/${createdReport.id}/task`, {
+        method: "PATCH",
+        headers: AUTH_HEADERS,
+        body: JSON.stringify({ appraisingPurpose: "" }),
+      });
+
+      expect(res.status).toBe(400);
+      const data = (await res.json()) as any;
+      expect(data.error).toContain("Невалидные данные");
+    });
+
+    it("должен вернуть 404 для несуществующего отчёта", async () => {
+      const res = await reportsRoutes.request(
+        `/00000000-0000-0000-0000-000000000000/task`,
+        {
+          method: "PATCH",
+          headers: AUTH_HEADERS,
+          body: JSON.stringify({ appraisingPurpose: "Тест" }),
+        },
+      );
+
+      expect(res.status).toBe(404);
+    });
+
+    it("должен вернуть 401 при отсутствии авторизации", async () => {
+      const createdReport = await createTestReport();
+      const res = await reportsRoutes.request(`/${createdReport.id}/task`, {
+        method: "PATCH",
+        body: JSON.stringify({ appraisingPurpose: "Тест" }),
+      });
+      expect(res.status).toBe(401);
+    });
+  });
+
   describe("POST /:id/duplicate", () => {
     it("должен успешно дублировать отчёт с пометкой '(копия)'", async () => {
       const createdReport = await createTestReport({

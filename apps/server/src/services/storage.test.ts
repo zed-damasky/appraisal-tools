@@ -44,12 +44,10 @@ const createMockReport = (reportDir: string): AppraisingReport => ({
   },
   reportTask: {
     id: "650e8400-e29b-41d4-a716-446655440000",
-    appraisingContractId: "123e4567-e89b-12d3-a456-426614174000",
-    appraisingReportId: "550e8400-e29b-41d4-a716-446655440000",
     appraisingDate: "2023-10-25",
     valueVariants: [],
     appraisingPurpose: "Оценка",
-    commongAssumptions: [],
+    commonAssumptions: [],
     specialAssumptions: [],
     otherAssumptions: [],
     appraisingRestrictions: [],
