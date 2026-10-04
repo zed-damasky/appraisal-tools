@@ -15,7 +15,6 @@ const AUTH_HEADERS = {
   "Content-Type": "application/json",
 };
 
-// Хелпер для создания тестового отчёта
 async function createTestReport() {
   const payload = {
     reportSequenceNumber: "MKT-001",
@@ -109,7 +108,6 @@ describe("Market Analysis Module API", () => {
       expect(data.macroAnalysisChapter[0].id).toBe(chapterId);
       expect(data.macroAnalysisChapter[0].path).toBe("docs/macro_2025.docx");
 
-      // Остальные разделы должны остаться пустыми массивами (по умолчанию)
       expect(data.nhueChapter).toEqual([]);
       expect(data.liquidityChapter).toEqual([]);
     });
@@ -152,7 +150,6 @@ describe("Market Analysis Module API", () => {
     });
 
     it("должен сохранить существующие данные при частичном обновлении", async () => {
-      // Сначала добавляем макроанализ
       await reportsRoutes.request(`/${testReportId}/market-analysis`, {
         method: "PATCH",
         headers: AUTH_HEADERS,
@@ -166,7 +163,6 @@ describe("Market Analysis Module API", () => {
         }),
       });
 
-      // Затем обновляем только ННЭИ
       const res = await reportsRoutes.request(
         `/${testReportId}/market-analysis`,
         {
@@ -186,11 +182,9 @@ describe("Market Analysis Module API", () => {
       expect(res.status).toBe(200);
       const data = (await res.json()) as any;
 
-      // Макроанализ должен сохраниться
       expect(data.macroAnalysisChapter).toHaveLength(1);
       expect(data.macroAnalysisChapter[0].path).toBe("docs/macro.docx");
 
-      // ННЭИ должен добавиться
       expect(data.nhueChapter).toHaveLength(1);
       expect(data.nhueChapter[0].path).toBe("docs/nhue.docx");
     });

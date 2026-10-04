@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeEach, afterEach } from "bun:test";
-import { reportsRouter } from "../index"; // Импортируем собранный роутер
+import { reportsRouter } from "../index";
 import { ensureAppStructure } from "../../../services/storage";
 import fs from "fs/promises";
 import path from "path";
@@ -15,12 +15,11 @@ const AUTH_HEADERS = {
   "Content-Type": "application/json",
 };
 
-// Хелпер для создания тестового отчёта
 async function createTestReport(overrides = {}) {
   const payload = {
     reportSequenceNumber: "TEST-001",
     clientName: "Тестовый Заказчик",
-    reportDir: path.join(TEMP_DIR, "reports_base"), // ✅ ИСПРАВЛЕНО: динамический путь
+    reportDir: path.join(TEMP_DIR, "reports_base"),
     appraisingContractId: "123e4567-e89b-12d3-a456-426614174000",
     ...overrides,
   };
@@ -157,7 +156,6 @@ describe("Reports Core Module API", () => {
       expect(data.metadata.reportSequenceNumber).toBe("125К");
       expect(data.files.reportDir).toContain("Отчёт_125К_");
 
-      // Проверка, что marketAnalysis теперь объект, а не массив
       expect(typeof data.marketAnalysis).toBe("object");
       expect(Array.isArray(data.marketAnalysis)).toBe(false);
     });
