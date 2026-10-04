@@ -47,13 +47,13 @@ export const marketAnalysisChapterSchema = z.object({
 
 export const marketAnalysisSchema = z.object({
   id: z.uuid("ID должен быть UUID"),
-  macroAnalysisChapter: z.array(marketAnalysisChapterSchema).default([]),
-  regionAnalysisChapter: z.array(marketAnalysisChapterSchema).default([]),
-  marketSegmentChapter: z.array(marketAnalysisChapterSchema).default([]),
-  analoguesChapter: z.array(marketAnalysisChapterSchema).default([]),
-  nhueChapter: z.array(marketAnalysisChapterSchema).default([]),
-  liquidityChapter: z.array(marketAnalysisChapterSchema).default([]),
-  marketConclusionsChapter: z.array(marketAnalysisChapterSchema).default([]),
+  macroAnalysisChapter: z.array(marketAnalysisChapterSchema).optional(),
+  regionAnalysisChapter: z.array(marketAnalysisChapterSchema).optional(),
+  marketSegmentChapter: z.array(marketAnalysisChapterSchema).optional(),
+  analoguesChapter: z.array(marketAnalysisChapterSchema).optional(),
+  nhueChapter: z.array(marketAnalysisChapterSchema).optional(),
+  liquidityChapter: z.array(marketAnalysisChapterSchema).optional(),
+  marketConclusionsChapter: z.array(marketAnalysisChapterSchema).optional(),
 });
 
 export const valuationResultsSchema = z.object({
@@ -75,8 +75,20 @@ export const valuationResultsSchema = z.object({
 
 export const appraisingReportTaskSchema = z.object({
   id: z.uuid("ID должен быть UUID"),
-  appraisingDate: z.string().min(1, "Укажите дату оценки"),
-  inspectionDate: z.string().min(1, "Укажите дату осмотра").optional(),
+  appraisingDate: z
+    .string()
+    .regex(
+      /^\d{4}-\d{2}-\d{2}$/,
+      "Дата оценки должна быть в формате ГГГГ-ММ-ДД",
+    ),
+  inspectionDate: z
+    .string()
+    .regex(
+      /^\d{4}-\d{2}-\d{2}$/,
+      "Дата осмотра должна быть в формате ГГГГ-ММ-ДД",
+    )
+    .optional(),
+
   valueVariants: z
     .array(valueVariantSchema)
     .min(1, "Должен быть хотя бы один тип определяемой стоимости"),

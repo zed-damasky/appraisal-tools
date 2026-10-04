@@ -1,13 +1,13 @@
 import { describe, expect, it, beforeEach, afterEach } from "bun:test";
-import { reportsRoutes } from "../../../../../.backup/__routes";
-import { ensureAppStructure } from "../../services/storage";
+import { reportsRouter } from "../index"; // Импортируем собранный роутер
+import { ensureAppStructure } from "../../../services/storage";
 import fs from "fs/promises";
 import path from "path";
 import os from "os";
 
 const TEMP_DIR = path.join(
   os.tmpdir(),
-  `appraisal-reports-test-${crypto.randomUUID()}`,
+  `appraisal-core-test-${crypto.randomUUID()}`,
 );
 
 const AUTH_HEADERS = {
@@ -15,16 +15,17 @@ const AUTH_HEADERS = {
   "Content-Type": "application/json",
 };
 
+// Хелпер для создания тестового отчёта
 async function createTestReport(overrides = {}) {
   const payload = {
     reportSequenceNumber: "TEST-001",
     clientName: "Тестовый Заказчик",
-    reportDir: "/tmp/test_reports_base",
+    reportDir: path.join(TEMP_DIR, "reports_base"), // ✅ ИСПРАВЛЕНО: динамический путь
     appraisingContractId: "123e4567-e89b-12d3-a456-426614174000",
     ...overrides,
   };
 
-  const res = await reportsRoutes.request("/", {
+  const res = await reportsRouter.request("/", {
     method: "POST",
     headers: AUTH_HEADERS,
     body: JSON.stringify(payload),
@@ -33,7 +34,7 @@ async function createTestReport(overrides = {}) {
   return (await res.json()) as any;
 }
 
-describe("Reports Module API", () => {
+describe("Reports Core Module API", () => {
   beforeEach(async () => {
     process.env.BASE_DIR = TEMP_DIR;
     await fs.mkdir(TEMP_DIR, { recursive: true });
@@ -47,7 +48,7 @@ describe("Reports Module API", () => {
 
   describe("Защита эндпоинтов", () => {
     it("должен вернуть 401 при отсутствии заголовка Authorization", async () => {
-      const res = await reportsRoutes.request("/");
+      const res = await reportsRouter.request("/");
       expect(res.status).toBe(401);
     });
   });
@@ -57,11 +58,11 @@ describe("Reports Module API", () => {
       const payload = {
         reportSequenceNumber: "125/К",
         clientName: "ООО 'Ромашка'",
-        reportDir: "/tmp/test_reports_base",
+        reportDir: path.join(TEMP_DIR, "reports_base"),
         appraisingContractId: "123e4567-e89b-12d3-a456-426614174000",
       };
 
-      const res = await reportsRoutes.request("/", {
+      const res = await reportsRouter.request("/", {
         method: "POST",
         headers: AUTH_HEADERS,
         body: JSON.stringify(payload),
@@ -80,11 +81,11 @@ describe("Reports Module API", () => {
       const payload = {
         reportSequenceNumber: "125/<>*?/К",
         clientName: "ООО 'Ромашка'",
-        reportDir: "/tmp/test_reports_base",
+        reportDir: path.join(TEMP_DIR, "reports_base"),
         appraisingContractId: "123e4567-e89b-12d3-a456-426614174000",
       };
 
-      const res = await reportsRoutes.request("/", {
+      const res = await reportsRouter.request("/", {
         method: "POST",
         headers: AUTH_HEADERS,
         body: JSON.stringify(payload),
@@ -96,10 +97,10 @@ describe("Reports Module API", () => {
     });
 
     it("должен отказать при невалидных данных", async () => {
-      const res = await reportsRoutes.request("/", {
+      const res = await reportsRouter.request("/", {
         method: "POST",
         headers: AUTH_HEADERS,
-        body: JSON.stringify({ clientName: "А" }),
+        body: JSON.stringify({ clientName: "А" }), // Слишком короткое имя
       });
       expect(res.status).toBe(400);
     });
@@ -107,7 +108,7 @@ describe("Reports Module API", () => {
 
   describe("GET /", () => {
     it("должен вернуть пустой список, если отчётов нет", async () => {
-      const res = await reportsRoutes.request("/", {
+      const res = await reportsRouter.request("/", {
         headers: { Authorization: "Bearer test" },
       });
       expect(res.status).toBe(200);
@@ -118,7 +119,7 @@ describe("Reports Module API", () => {
     it("должен вернуть список с созданным отчётом", async () => {
       await createTestReport({ clientName: "Иванов И.И." });
 
-      const res = await reportsRoutes.request("/", {
+      const res = await reportsRouter.request("/", {
         headers: { Authorization: "Bearer test" },
       });
       expect(res.status).toBe(200);
@@ -131,12 +132,12 @@ describe("Reports Module API", () => {
     it("должен фильтровать отчёты по статусу", async () => {
       await createTestReport();
 
-      const res = await reportsRoutes.request("/?status=completed", {
+      const res = await reportsRouter.request("/?status=completed", {
         headers: { Authorization: "Bearer test" },
       });
       expect(res.status).toBe(200);
       const data = (await res.json()) as any[];
-      expect(data).toHaveLength(0);
+      expect(data).toHaveLength(0); // Созданный отчёт имеет статус "draft"
     });
   });
 
@@ -146,7 +147,7 @@ describe("Reports Module API", () => {
         reportSequenceNumber: "125/К",
       });
 
-      const res = await reportsRoutes.request(`/${createdReport.id}`, {
+      const res = await reportsRouter.request(`/${createdReport.id}`, {
         headers: { Authorization: "Bearer test" },
       });
 
@@ -155,10 +156,14 @@ describe("Reports Module API", () => {
       expect(data.id).toBe(createdReport.id);
       expect(data.metadata.reportSequenceNumber).toBe("125К");
       expect(data.files.reportDir).toContain("Отчёт_125К_");
+
+      // Проверка, что marketAnalysis теперь объект, а не массив
+      expect(typeof data.marketAnalysis).toBe("object");
+      expect(Array.isArray(data.marketAnalysis)).toBe(false);
     });
 
     it("должен вернуть 404 для несуществующего ID", async () => {
-      const res = await reportsRoutes.request(
+      const res = await reportsRouter.request(
         "/00000000-0000-0000-0000-000000000000",
         { headers: { Authorization: "Bearer test" } },
       );
@@ -166,7 +171,7 @@ describe("Reports Module API", () => {
     });
 
     it("должен вернуть 400 для невалидного формата ID", async () => {
-      const res = await reportsRoutes.request("/invalid-uuid", {
+      const res = await reportsRouter.request("/invalid-uuid", {
         headers: { Authorization: "Bearer test" },
       });
       expect(res.status).toBe(400);
@@ -177,7 +182,7 @@ describe("Reports Module API", () => {
     it("должен успешно обновить частичные данные отчёта", async () => {
       const createdReport = await createTestReport();
 
-      const res = await reportsRoutes.request(`/${createdReport.id}`, {
+      const res = await reportsRouter.request(`/${createdReport.id}`, {
         method: "PUT",
         headers: AUTH_HEADERS,
         body: JSON.stringify({ status: "in_progress" }),
@@ -193,7 +198,7 @@ describe("Reports Module API", () => {
     it("должен успешно изменить статус отчёта", async () => {
       const createdReport = await createTestReport();
 
-      const res = await reportsRoutes.request(`/${createdReport.id}/status`, {
+      const res = await reportsRouter.request(`/${createdReport.id}/status`, {
         method: "PATCH",
         headers: AUTH_HEADERS,
         body: JSON.stringify({ status: "review" }),
@@ -207,84 +212,13 @@ describe("Reports Module API", () => {
     it("должен отказать при невалидном статусе", async () => {
       const createdReport = await createTestReport();
 
-      const res = await reportsRoutes.request(`/${createdReport.id}/status`, {
+      const res = await reportsRouter.request(`/${createdReport.id}/status`, {
         method: "PATCH",
         headers: AUTH_HEADERS,
-        body: JSON.stringify({ status: "invalid_status" }),
+        body: JSON.stringify({ status: "invalid_status_xyz" }),
       });
 
       expect(res.status).toBe(400);
-    });
-  });
-
-  describe("PATCH /:id/task", () => {
-    it("должен успешно обновить цель оценки", async () => {
-      const createdReport = await createTestReport();
-
-      const res = await reportsRoutes.request(`/${createdReport.id}/task`, {
-        method: "PATCH",
-        headers: AUTH_HEADERS,
-        body: JSON.stringify({ appraisingPurpose: "Оценка для ипотеки" }),
-      });
-
-      expect(res.status).toBe(200);
-      const data = (await res.json()) as any;
-      expect(data.appraisingPurpose).toBe("Оценка для ипотеки");
-      expect(data.id).toBeDefined(); // Это ID задания, а не отчёта
-    });
-
-    it("должен успешно обновить дату осмотра и дополнительные исследования", async () => {
-      const createdReport = await createTestReport();
-
-      const res = await reportsRoutes.request(`/${createdReport.id}/task`, {
-        method: "PATCH",
-        headers: AUTH_HEADERS,
-        body: JSON.stringify({
-          inspectionDate: "2024-05-20",
-          additionalResearch: "Требуется анализ рынка аренды",
-        }),
-      });
-
-      expect(res.status).toBe(200);
-      const data = (await res.json()) as any;
-      expect(data.inspectionDate).toBe("2024-05-20");
-      expect(data.additionalResearch).toBe("Требуется анализ рынка аренды");
-    });
-
-    it("должен отказать при невалидных данных (пустая цель оценки)", async () => {
-      const createdReport = await createTestReport();
-
-      const res = await reportsRoutes.request(`/${createdReport.id}/task`, {
-        method: "PATCH",
-        headers: AUTH_HEADERS,
-        body: JSON.stringify({ appraisingPurpose: "" }),
-      });
-
-      expect(res.status).toBe(400);
-      const data = (await res.json()) as any;
-      expect(data.error).toContain("Невалидные данные");
-    });
-
-    it("должен вернуть 404 для несуществующего отчёта", async () => {
-      const res = await reportsRoutes.request(
-        `/00000000-0000-0000-0000-000000000000/task`,
-        {
-          method: "PATCH",
-          headers: AUTH_HEADERS,
-          body: JSON.stringify({ appraisingPurpose: "Тест" }),
-        },
-      );
-
-      expect(res.status).toBe(404);
-    });
-
-    it("должен вернуть 401 при отсутствии авторизации", async () => {
-      const createdReport = await createTestReport();
-      const res = await reportsRoutes.request(`/${createdReport.id}/task`, {
-        method: "PATCH",
-        body: JSON.stringify({ appraisingPurpose: "Тест" }),
-      });
-      expect(res.status).toBe(401);
     });
   });
 
@@ -294,7 +228,7 @@ describe("Reports Module API", () => {
         reportSequenceNumber: "DUP-1",
       });
 
-      const res = await reportsRoutes.request(
+      const res = await reportsRouter.request(
         `/${createdReport.id}/duplicate`,
         {
           method: "POST",
@@ -315,18 +249,18 @@ describe("Reports Module API", () => {
     it("должен успешно удалить отчёт и запись в индексе", async () => {
       const createdReport = await createTestReport();
 
-      const deleteRes = await reportsRoutes.request(`/${createdReport.id}`, {
+      const deleteRes = await reportsRouter.request(`/${createdReport.id}`, {
         method: "DELETE",
         headers: { Authorization: "Bearer test" },
       });
       expect(deleteRes.status).toBe(200);
 
-      const getRes = await reportsRoutes.request(`/${createdReport.id}`, {
+      const getRes = await reportsRouter.request(`/${createdReport.id}`, {
         headers: { Authorization: "Bearer test" },
       });
       expect(getRes.status).toBe(404);
 
-      const listRes = await reportsRoutes.request("/", {
+      const listRes = await reportsRouter.request("/", {
         headers: { Authorization: "Bearer test" },
       });
       const listData = (await listRes.json()) as any[];
