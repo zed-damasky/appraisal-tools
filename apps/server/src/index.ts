@@ -32,9 +32,9 @@ app.get("/api/health", (c) => {
 app.route("/api/settings", settingsRoutes);
 app.route("/api/auth", authRoutes);
 app.route("/api/filesystem", filesystemRoutes);
+app.route("/api/contracts", contractsRoutes);
 app.route("/api/reports", reportsRouter);
 app.route("/api/reports", filesRoutes);
-app.route("/api/contracts", contractsRoutes);
 
 async function startServer() {
   const baseDir =

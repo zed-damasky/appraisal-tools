@@ -5,7 +5,6 @@ export const clientSchema = z.object({
   contract: z.array(appraisingContractSchema).min(1, "Должен быть хотя бы один договор"),
 });
 
-
 export const clientOrganisationSchema = organisationSchema.extend({
   contract: z.array(appraisingContractSchema).min(1, "Должен быть хотя бы один договор"),
 });

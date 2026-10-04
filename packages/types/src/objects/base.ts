@@ -1,5 +1,4 @@
-
-import { Document } from "..";
+import { AppraisingObject, Document } from "..";
 
 export interface Rights {
   typeOfRights: string;
@@ -78,6 +77,13 @@ export interface Depreciation {
   externalEconomicDepreciation: number;
 }
 
+export interface CustomCharacteristic {
+  id: string;
+  name: string;
+  value: string;
+  description?: string;
+}
+
 export interface BaseAppraisalObject {
   id: string;
   name: string;
@@ -85,6 +91,7 @@ export interface BaseAppraisalObject {
   appraisalDate: string;
   technicalDocuments: Document[];
   otherDocuments?: Document[];
+  customCharacteristics?: CustomCharacteristic[];
 }
 
 //пока пусть будет так

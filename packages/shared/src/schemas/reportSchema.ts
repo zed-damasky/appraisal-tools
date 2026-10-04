@@ -40,12 +40,20 @@ export const reportFilesSchema = z.object({
   docs: z.array(documentSchema).default([]),
 });
 
+export const marketAnalysisChapterSchema = z.object({
+  id: z.uuid("ID главы должен быть UUID"),
+  path: z.string().min(1, "Укажите путь к файлу главы анализа"),
+});
+
 export const marketAnalysisSchema = z.object({
   id: z.uuid("ID должен быть UUID"),
-  path: z.string().min(1, "Укажите путь к файлу/данным анализа рынка"),
-  highestAndBestUse: z
-    .string()
-    .min(1, "Опишите ННЭИ (наилучшее и наиболее эффективное использование)"),
+  macroAnalysisChapter: z.array(marketAnalysisChapterSchema).default([]),
+  regionAnalysisChapter: z.array(marketAnalysisChapterSchema).default([]),
+  marketSegmentChapter: z.array(marketAnalysisChapterSchema).default([]),
+  analoguesChapter: z.array(marketAnalysisChapterSchema).default([]),
+  nhueChapter: z.array(marketAnalysisChapterSchema).default([]),
+  liquidityChapter: z.array(marketAnalysisChapterSchema).default([]),
+  marketConclusionsChapter: z.array(marketAnalysisChapterSchema).default([]),
 });
 
 export const valuationResultsSchema = z.object({
@@ -138,9 +146,7 @@ export const appraisingReportSchema = z.object({
   status: reportStatusSchema,
   metadata: appraisingReportMetadataSchema,
   reportTask: appraisingReportTaskSchema,
-  marketAnalysis: z
-    .array(marketAnalysisSchema)
-    .min(1, "В отчёте должен быть указан хотя бы один анализ рынка"),
+  marketAnalysis: marketAnalysisSchema,
   appraisers: z
     .array(appraiserSchema)
     .min(1, "В отчёте должен быть указан хотя бы один оценщик"),
@@ -163,6 +169,9 @@ export type AppraisingRestrictionInput = z.infer<
 >;
 export type SpecificRequirementInput = z.infer<
   typeof specificRequirementSchema
+>;
+export type MarketAnalysisChapterInput = z.infer<
+  typeof marketAnalysisChapterSchema
 >;
 export type MarketAnalysisInput = z.infer<typeof marketAnalysisSchema>;
 export type ValuationResultsInput = z.infer<typeof valuationResultsSchema>;

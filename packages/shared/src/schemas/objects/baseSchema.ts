@@ -122,6 +122,13 @@ export const depreciationSchema = z.object({
     .max(100, "Внешнее устаревание не может превышать 100%"),
 });
 
+export const customCharacteristicSchema = z.object({
+  id: z.uuid("ID элемента должен быть UUID"),
+  name: z.string().min(1, "Укажите название характеристики"),
+  value: z.string().min(1, "Укажите значение характеристики"),
+  description: z.string().optional(),
+});
+
 export const baseAppraisalObjectSchema = z.object({
   id: z.uuid("ID объекта должен быть UUID"),
   name: z
@@ -133,4 +140,5 @@ export const baseAppraisalObjectSchema = z.object({
     .array(documentSchema)
     .min(1, "Должен быть хотя бы один технический документ"),
   otherDocuments: z.array(documentSchema).optional(),
+  customCharacteristics: z.array(customCharacteristicSchema).optional(),
 });

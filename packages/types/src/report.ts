@@ -1,4 +1,5 @@
 import {
+  AnalogueObject,
   Appraiser,
   AppraisingObject,
   ObjectType,
@@ -38,10 +39,20 @@ export interface SpecificRequirement {
   description: string;
 }
 
-export interface MarketAnalysis {
+export interface MarketAnalysisChapter {
   id: string;
   path: string;
-  highestAndBestUse: string;
+}
+
+export interface MarketAnalysis {
+  id: string;
+  macroAnalysisChapter: MarketAnalysisChapter[];
+  regionAnalysisChapter: MarketAnalysisChapter[];
+  marketSegmentChapter: MarketAnalysisChapter[];
+  analoguesChapter: MarketAnalysisChapter[];
+  nhueChapter: MarketAnalysisChapter[];
+  liquidityChapter: MarketAnalysisChapter[];
+  marketConclusionsChapter: MarketAnalysisChapter[];
 }
 
 export interface ValuationResults {
@@ -93,11 +104,12 @@ export interface AppraisingReport {
   status: ReportStatus;
   metadata: AppraisingReportMetadata;
   reportTask: AppraisingReportTask;
-  marketAnalysis: MarketAnalysis[];
+  marketAnalysis: MarketAnalysis;
   appraisers: Appraiser[];
   files: ReportFiles;
   valuationResults: ValuationResults;
   objects: AppraisingObject[];
+  analogues: AnalogueObject[];
   createdAt: string;
   updatedAt: string;
 }

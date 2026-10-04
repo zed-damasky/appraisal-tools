@@ -25,20 +25,27 @@ export async function getReportsList(filters?: {
 
   return index.filter((report) => {
     if (filters.status && report.status !== filters.status) return false;
-    if (filters.objectType && !report.objectTypes.includes(filters.objectType as any)) {
+    if (
+      filters.objectType &&
+      !report.objectTypes.includes(filters.objectType as any)
+    ) {
       return false;
     }
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
       const matchesTitle = report.title.toLowerCase().includes(searchLower);
-      const matchesClient = report.clientName.toLowerCase().includes(searchLower);
+      const matchesClient = report.clientName
+        .toLowerCase()
+        .includes(searchLower);
       if (!matchesTitle && !matchesClient) return false;
     }
     return true;
   });
 }
 
-export async function getReportById(reportId: string): Promise<AppraisingReport | null> {
+export async function getReportById(
+  reportId: string,
+): Promise<AppraisingReport | null> {
   const baseDir = getBaseDir();
   return await getReport(baseDir, reportId);
 }
@@ -85,7 +92,16 @@ export async function createReport(data: {
       specificRequirements: [],
       additionalResearch: undefined,
     },
-    marketAnalysis: [],
+    marketAnalysis: {
+      id: crypto.randomUUID(),
+      macroAnalysisChapter: [],
+      regionAnalysisChapter: [],
+      marketSegmentChapter: [],
+      analoguesChapter: [],
+      nhueChapter: [],
+      liquidityChapter: [],
+      marketConclusionsChapter: [],
+    },
     appraisers: [],
     files: {
       reportDir: fullReportDir,
@@ -101,6 +117,7 @@ export async function createReport(data: {
       currency: "RUB",
     },
     objects: [],
+    analogues: [],
     createdAt: now,
     updatedAt: now,
   };
@@ -137,7 +154,9 @@ export async function updateReport(
   let finalClientName = clientName;
   if (!finalClientName) {
     const index = await getReportsIndex(baseDir);
-    finalClientName = index.find((r) => r.id === reportId)?.clientName || "Неизвестный заказчик";
+    finalClientName =
+      index.find((r) => r.id === reportId)?.clientName ||
+      "Неизвестный заказчик";
   }
 
   await saveReport(baseDir, updatedReport, finalClientName);
@@ -149,7 +168,9 @@ export async function deleteReportById(reportId: string): Promise<boolean> {
   return await deleteReport(baseDir, reportId);
 }
 
-export async function duplicateReport(reportId: string): Promise<AppraisingReportIndexData | null> {
+export async function duplicateReport(
+  reportId: string,
+): Promise<AppraisingReportIndexData | null> {
   const baseDir = getBaseDir();
   const originalReport = await getReport(baseDir, reportId);
   if (!originalReport) return null;
@@ -164,7 +185,10 @@ export async function duplicateReport(reportId: string): Promise<AppraisingRepor
   const dateStr = now.split("T")[0].replace(/-/g, "");
   const newFolderName = `Отчёт_${newSequenceNumber}_${dateStr}`;
 
-  const newReportDir = path.join(path.dirname(originalReport.files.reportDir), newFolderName);
+  const newReportDir = path.join(
+    path.dirname(originalReport.files.reportDir),
+    newFolderName,
+  );
   await ensureReportStructure(newReportDir);
 
   const clonedReport: AppraisingReport = {

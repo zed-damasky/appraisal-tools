@@ -13,3 +13,5 @@ export const appraisingObjectSchema = z.discriminatedUnion("objectType", [
 ]);
 
 export type AppraisingObjectInput = z.infer<typeof appraisingObjectSchema>;
+
+export * from "./analoguesSchema";
