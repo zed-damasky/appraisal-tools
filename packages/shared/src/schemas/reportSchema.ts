@@ -56,21 +56,52 @@ export const marketAnalysisSchema = z.object({
   marketConclusionsChapter: z.array(marketAnalysisChapterSchema).optional(),
 });
 
-export const valuationResultsSchema = z.object({
-  approachesUsed: z
-    .array(valuationApproachSchema)
-    .min(1, "Должен быть выбран хотя бы один подход к оценке"),
-  approachesRejected: z.array(
-    z.object({
-      approach: valuationApproachSchema,
-      reason: z.string().min(1, "Укажите причину отказа от подхода"),
-    }),
-  ),
-  reconciliationDescription: z
+export const approachStatusSchema = z.enum([
+  "used",
+  "rejected",
+  "not_applicable",
+]);
+
+export const approachResultSchema = z
+  .object({
+    approach: valuationApproachSchema,
+    status: approachStatusSchema,
+    calculatedValue: z
+      .number()
+      .positive("Расчетная стоимость должна быть больше 0")
+      .optional(),
+    justification: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (
+        data.status === "used" &&
+        (data.calculatedValue === undefined || data.calculatedValue <= 0)
+      ) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message:
+        "Для используемого подхода необходимо указать расчетную стоимость",
+      path: ["calculatedValue"],
+    },
+  );
+
+export const reconciliationSchema = z.object({
+  description: z
     .string()
     .min(1, "Описание согласования результатов обязательно"),
   finalValue: z.number().positive("Итоговая стоимость должна быть больше 0"),
   currency: z.string().min(1, "Укажите валюту (например, RUB)"),
+});
+
+export const valuationResultsSchema = z.object({
+  approaches: z
+    .array(approachResultSchema)
+    .min(1, "Должен быть указан хотя бы один подход"),
+  reconciliation: reconciliationSchema,
 });
 
 export const appraisingReportTaskSchema = z.object({

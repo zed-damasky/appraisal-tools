@@ -158,6 +158,13 @@ describe("Reports Core Module API", () => {
 
       expect(typeof data.marketAnalysis).toBe("object");
       expect(Array.isArray(data.marketAnalysis)).toBe(false);
+
+      expect(data.valuationResults).toBeDefined();
+      expect(Array.isArray(data.valuationResults.approaches)).toBe(true);
+      expect(data.valuationResults.approaches).toHaveLength(3);
+      expect(data.valuationResults.approaches[0].approach).toBe("comparative");
+      expect(data.valuationResults.approaches[0].status).toBe("not_applicable");
+      expect(data.valuationResults.reconciliation.currency).toBe("RUB");
     });
 
     it("должен вернуть 404 для несуществующего ID", async () => {

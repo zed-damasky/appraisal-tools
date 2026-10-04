@@ -2,6 +2,7 @@ import {
   AnalogueObject,
   Appraiser,
   AppraisingObject,
+  ApproachStatus,
   ObjectType,
   ReportStatus,
   ValuationApproach,
@@ -55,12 +56,22 @@ export interface MarketAnalysis {
   marketConclusionsChapter: MarketAnalysisChapter[];
 }
 
-export interface ValuationResults {
-  approachesUsed: ValuationApproach[];
-  approachesRejected: { approach: ValuationApproach; reason: string }[];
-  reconciliationDescription: string;
-  finalValue: number;
+export interface ApproachResult {
+  approach: ValuationApproach;
+  status: ApproachStatus; 
+  calculatedValue?: number; 
+  justification?: string; 
+}
+
+export interface Reconciliation {
+  description: string; 
+  finalValue: number; 
   currency: string;
+}
+
+export interface ValuationResults {
+  approaches: ApproachResult[]; 
+  reconciliation: Reconciliation; 
 }
 
 export interface AppraisingReportTask {

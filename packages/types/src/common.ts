@@ -2,6 +2,7 @@ export type ReportStatus =
   "draft" | "in_progress" | "review" | "completed" | "archived";
 export type ObjectType = "immovable_property" | "movable_property" | "business";
 export type ValuationApproach = "comparative" | "income" | "cost";
+export type ApproachStatus = "used" | "rejected" | "not_applicable";
 
 export interface Settings {
   port: number;

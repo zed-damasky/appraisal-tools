@@ -110,11 +110,16 @@ export async function createReport(data: {
       docs: [],
     },
     valuationResults: {
-      approachesUsed: [],
-      approachesRejected: [],
-      reconciliationDescription: "",
-      finalValue: 0,
-      currency: "RUB",
+      approaches: [
+        { approach: "comparative", status: "not_applicable" },
+        { approach: "income", status: "not_applicable" },
+        { approach: "cost", status: "not_applicable" },
+      ],
+      reconciliation: {
+        description: "",
+        finalValue: 0,
+        currency: "RUB",
+      },
     },
     objects: [],
     analogues: [],
