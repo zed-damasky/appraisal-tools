@@ -1,6 +1,7 @@
 import {
   AnalogueObject,
   Appraiser,
+  AppraiserSnapshot,
   AppraisingObject,
   ApproachStatus,
   ObjectType,
@@ -58,20 +59,20 @@ export interface MarketAnalysis {
 
 export interface ApproachResult {
   approach: ValuationApproach;
-  status: ApproachStatus; 
-  calculatedValue?: number; 
-  justification?: string; 
+  status: ApproachStatus;
+  calculatedValue?: number;
+  justification?: string;
 }
 
 export interface Reconciliation {
-  description: string; 
-  finalValue: number; 
+  description: string;
+  finalValue: number;
   currency: string;
 }
 
 export interface ValuationResults {
-  approaches: ApproachResult[]; 
-  reconciliation: Reconciliation; 
+  approaches: ApproachResult[];
+  reconciliation: Reconciliation;
 }
 
 export interface AppraisingReportTask {
@@ -116,7 +117,7 @@ export interface AppraisingReport {
   metadata: AppraisingReportMetadata;
   reportTask: AppraisingReportTask;
   marketAnalysis: MarketAnalysis;
-  appraisers: Appraiser[];
+  appraisers: AppraiserSnapshot[];
   files: ReportFiles;
   valuationResults: ValuationResults;
   objects: AppraisingObject[];

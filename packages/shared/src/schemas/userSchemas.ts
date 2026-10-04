@@ -88,7 +88,7 @@ export const appraiserSchema = personaSchema.extend({
     .min(4, "Укажите год начала стажа")
     .regex(/^\d{4}$/, "Формат: ГГГГ")
     .optional(),
-  insurance: insuranceInformationSchema.optional(),
+  insurance: z.array(insuranceInformationSchema).optional(),
   selfRegulatoryInfo: selfRegulatoryInformationSchema.optional(),
   personalDocumentList: z.array(documentSchema).optional(),
   hasPrivatePractice: z.boolean().default(false),
@@ -96,6 +96,16 @@ export const appraiserSchema = personaSchema.extend({
     appraisingProviderPrivatePracticeInformationSchema.optional(),
   defaultWorkplaceId: z.uuid("ID места работы должен быть UUID").optional(),
   workPlaceList: z.array(appraisingProviderCompanySchema).optional(),
+});
+
+export const appraiserSnapshotSchema = z.object({
+  appraiserId: z.uuid("ID оценщика должен быть UUID"),
+  snapshotDate: z.string().min(1, "Укажите дату создания снапшота"),
+  isFrozen: z.boolean().default(false),
+  data: appraiserSchema.omit({
+    passwordHash: true,
+    recoveryWordsHashes: true,
+  }),
 });
 
 export const updateProfileSchema = appraiserSchema

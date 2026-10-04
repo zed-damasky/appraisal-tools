@@ -1,12 +1,13 @@
 import { z } from "zod";
 import {
-  appraiserSchema,
+  analogueObjectSchema,
+  appraiserSnapshotSchema,
+  appraisingObjectSchema,
   documentSchema,
   objectTypeSchema,
   reportStatusSchema,
   valuationApproachSchema,
 } from ".";
-import { appraisingObjectSchema } from "./objects";
 
 export const valueVariantSchema = z.object({
   id: z.uuid("ID должен быть UUID"),
@@ -190,14 +191,13 @@ export const appraisingReportSchema = z.object({
   metadata: appraisingReportMetadataSchema,
   reportTask: appraisingReportTaskSchema,
   marketAnalysis: marketAnalysisSchema,
-  appraisers: z
-    .array(appraiserSchema)
-    .min(1, "В отчёте должен быть указан хотя бы один оценщик"),
+  appraisers: z.array(appraiserSnapshotSchema).default([]),
   files: reportFilesSchema,
   valuationResults: valuationResultsSchema,
   objects: z
     .array(appraisingObjectSchema)
     .min(1, "В отчёте должен быть хотя бы один объект оценки"),
+  analogues: z.array(analogueObjectSchema).optional(),
   createdAt: z.string().min(1, "Укажите дату создания"),
   updatedAt: z.string().min(1, "Укажите дату последнего обновления"),
 });
@@ -228,3 +228,5 @@ export type AppraisingReportIndexDataInput = z.infer<
   typeof appraisingReportIndexDataSchema
 >;
 export type AppraisingReportInput = z.infer<typeof appraisingReportSchema>;
+
+export type AppraiserSnapshotInput = z.infer<typeof appraiserSnapshotSchema>;

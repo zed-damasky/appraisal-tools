@@ -1,4 +1,4 @@
-import { InsuranceInformation, Organisation, Persona, Document} from ".";
+import { InsuranceInformation, Organisation, Persona, Document } from ".";
 
 export interface QualificationCertificate {
   issuedBy: string;
@@ -58,7 +58,7 @@ export interface Appraiser extends Persona {
 
   workExperienceStartYear?: string;
 
-  insurance?: InsuranceInformation;
+  insurance?: InsuranceInformation[];
 
   selfRegulatoryInfo?: SelfRegulatoryInformation;
 
@@ -70,4 +70,11 @@ export interface Appraiser extends Persona {
   defaultWorkplaceId?: string;
 
   workPlaceList?: AppraisingProviderCompany[];
+}
+
+export interface AppraiserSnapshot {
+  appraiserId: string;
+  snapshotDate: string;
+  isFrozen: boolean;
+  data: Omit<Appraiser, "passwordHash" | "recoveryWordsHashes">;
 }
