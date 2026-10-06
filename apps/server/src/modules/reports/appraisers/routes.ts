@@ -53,14 +53,20 @@ appraisersRouter.post("/:id/appraisers", async (c) => {
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Ошибка добавления оценщика";
+
     if (message === "Отчёт не найден") return c.json({ error: message }, 404);
+
+    const lowerMessage = message.toLowerCase();
     if (
-      message.includes("Невалидные данные") ||
-      message.includes("уже привязан") ||
-      message.includes("должен быть хотя бы один")
+      lowerMessage.includes("невалидные данные") ||
+      lowerMessage.includes("уже привязан") ||
+      lowerMessage.includes("должен быть хотя бы один") ||
+      lowerMessage.includes("нет действующего полиса") ||
+      lowerMessage.includes("нет действующего квалификационного аттестата")
     ) {
       return c.json({ error: message }, 400);
     }
+
     return c.json({ error: message }, 500);
   }
 });

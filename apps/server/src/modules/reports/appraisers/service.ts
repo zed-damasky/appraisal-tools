@@ -6,6 +6,10 @@ import {
 import { getBaseDir } from "../../../config";
 import type { AppraiserSnapshot, AppraisingReport } from "@appraisal/types";
 import { appraiserSnapshotSchema } from "@appraisal/shared/src/schemas";
+import {
+  findActiveInsurance,
+  findActiveCertificate,
+} from "@appraisal/shared/src/utils";
 
 function ensureAppraisers(report: AppraisingReport): AppraiserSnapshot[] {
   if (!Array.isArray(report.appraisers)) {
@@ -45,16 +49,27 @@ export async function addAppraiser(
     throw new Error("Оценщик с таким ID уже привязан к отчёту");
   }
 
-  const data = newSnapshot.data;
-  if (!data.insurance || data.insurance.length === 0) {
-    throw new Error("У оценщика должен быть хотя бы один полис страхования");
-  }
-  if (
-    !data.qualificationCertificate ||
-    data.qualificationCertificate.length === 0
-  ) {
+  const reportDate = report.metadata.reportDatePreperation;
+
+  const activeInsurance = findActiveInsurance(
+    newSnapshot.data.insurance || [],
+    reportDate,
+  );
+
+  if (!activeInsurance) {
     throw new Error(
-      "У оценщика должен быть хотя бы один квалификационный аттестат",
+      `Нет действующего полиса страхования на дату ${reportDate}`,
+    );
+  }
+
+  const activeCertificate = findActiveCertificate(
+    newSnapshot.data.qualificationCertificate || [],
+    reportDate,
+  );
+
+  if (!activeCertificate) {
+    throw new Error(
+      `Нет действующего квалификационного аттестата на дату ${reportDate}`,
     );
   }
 

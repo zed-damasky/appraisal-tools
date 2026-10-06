@@ -1,6 +1,7 @@
 import { InsuranceInformation, Organisation, Persona, Document } from ".";
 
 export interface QualificationCertificate {
+  id: string;
   issuedBy: string;
   issuedDate: string;
   validDateFrom: string;
@@ -29,7 +30,7 @@ export interface SelfRegulatoryInformation {
 }
 
 export interface AppraisingProviderCompany extends Organisation {
-  insurance: InsuranceInformation;
+  insurance: InsuranceInformation[];
   appraiserId: string;
   providerDocumentList: Document[];
 }

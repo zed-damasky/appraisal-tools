@@ -7,6 +7,7 @@ import {
 } from ".";
 
 export const qualificationCertificateSchema = z.object({
+  id: z.uuid("ID должен быть UUID"),
   issuedBy: z.string().min(1, "Укажите, кем выдан аттестат"),
   issuedDate: z.string().min(1, "Укажите дату выдачи"),
   validDateFrom: z.string().min(1, "Укажите начало действия"),
@@ -39,7 +40,9 @@ export const selfRegulatoryInformationSchema = z.object({
 });
 
 export const appraisingProviderCompanySchema = organisationSchema.extend({
-  insurance: insuranceInformationSchema,
+  insurance: z
+    .array(insuranceInformationSchema)
+    .min(1, "Должен быть хотя бы один полис страхования"),
   appraiserId: z.uuid("ID оценщика должен быть UUID"),
   providerDocumentList: z
     .array(documentSchema)
@@ -81,7 +84,6 @@ export const appraiserSchema = personaSchema.extend({
   diploma: diplomaSchema.optional(),
   qualificationCertificate: z
     .array(qualificationCertificateSchema)
-    .min(1, "Должен быть хотя бы один аттестат")
     .optional(),
   workExperienceStartYear: z
     .string()

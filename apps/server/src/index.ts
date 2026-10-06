@@ -5,11 +5,12 @@ import path from "path";
 import os from "os";
 import { ensureAppStructure, getSettings } from "./services/storage";
 import { settingsRoutes } from "./modules/settings/routes";
-import { authRoutes } from "./modules/auth/routes";
+import authRoutes from "./modules/auth";
 import { filesystemRoutes } from "./modules/filesystem/routes";
 import { filesRoutes } from "./modules/files/routes";
 import { contractsRoutes } from "./contracts/routes";
 import reportsRouter from "./modules/reports"
+
 
 const app = new Hono();
 

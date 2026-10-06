@@ -75,6 +75,7 @@ export const organisationSchema = z.object({
 });
 
 export const insuranceInformationSchema = z.object({
+  id: z.uuid("ID должен быть UUID"),
   nameInsuranceCompany: z.string().min(1, "Укажите страховую компанию"),
   contractNumber: z.string().min(1, "Укажите номер полиса"),
   issueDate: z.string().min(1, "Укажите дату выдачи"),

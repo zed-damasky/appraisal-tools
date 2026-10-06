@@ -11,15 +11,13 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Укажите пароль"),
 });
 
-export const recoveryWordsForResetSchema = z
-  .array(
-    z
-      .string()
-      .min(1, "Слово не может быть пустым")
-      .max(50, "Слово слишком длинное")
-      .transform((val) => val.trim().toLowerCase()),
-  )
-  .length(6, "Должно быть ровно 6 слов");
+export const recoveryWordsForResetSchema = z.array(
+  z
+    .string()
+    .min(1, "Слово не может быть пустым")
+    .max(50, "Слово слишком длинное")
+    .transform((val) => val.trim().toLowerCase()),
+);
 
 export const resetPasswordSchema = z.object({
   email: z.email("Некорректный email"),

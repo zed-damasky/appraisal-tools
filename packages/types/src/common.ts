@@ -56,6 +56,7 @@ export interface Organisation {
 }
 
 export interface InsuranceInformation {
+  id: string;
   nameInsuranceCompany: string;
   contractNumber: string;
   issueDate: string;

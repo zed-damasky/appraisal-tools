@@ -1,11 +1,12 @@
 import { describe, expect, it, beforeEach, afterEach } from "bun:test";
 import { filesRoutes } from "./routes";
-import { reportsRoutes } from "../../../../../.backup/__routes";
+
 import { ensureAppStructure } from "../../services/storage";
 import fs from "fs/promises";
 import path from "path";
 import os from "os";
 import { existsSync } from "fs";
+import { reportsRoutes } from "../reports/routes";
 
 const TEMP_DIR = path.join(
   os.tmpdir(),

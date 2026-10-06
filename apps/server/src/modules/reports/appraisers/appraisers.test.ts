@@ -33,9 +33,12 @@ async function createTestReport() {
 }
 
 function createMockSnapshot(appraiserId: string) {
+  const today = new Date();
+  const currentYear = today.getFullYear();
+
   return {
     appraiserId,
-    snapshotDate: "2026-10-05",
+    snapshotDate: today.toISOString().split("T")[0], // Сегодня
     isFrozen: false,
     data: {
       id: appraiserId,
@@ -55,21 +58,23 @@ function createMockSnapshot(appraiserId: string) {
       },
       qualificationCertificate: [
         {
+          id: crypto.randomUUID(),
           issuedBy: "РСО",
           issuedDate: "2020-01-01",
-          validDateFrom: "2020-01-01",
-          validDateTo: "2030-01-01",
+          validDateFrom: `${currentYear - 5}-01-01`, //  5 лет назад
+          validDateTo: `${currentYear + 5}-01-01`, //  5 лет вперёд
           numberQualificationCertificate: "А-12345",
         },
       ],
       workExperienceStartYear: "2015",
       insurance: [
         {
+          id: crypto.randomUUID(),
           nameInsuranceCompany: "ООО 'Страхование'",
           contractNumber: "П-001",
-          issueDate: "2025-01-01",
-          validDateFrom: "2025-01-01",
-          validDateTo: "2026-12-31",
+          issueDate: `${currentYear}-01-01`,
+          validDateFrom: `${currentYear}-01-01`,
+          validDateTo: `${currentYear + 1}-12-31`, // Действует ещё год
           insuredAmount: "10000000",
         },
       ],
@@ -168,6 +173,7 @@ describe("Appraisers Module API", () => {
       const snapshot = createMockSnapshot(
         "550e8400-e29b-41d4-a716-446655440101",
       );
+      const todayStr = new Date().toISOString().split("T")[0];
 
       const res = await reportsRouter.request(`/${testReportId}/appraisers`, {
         method: "POST",
@@ -178,7 +184,7 @@ describe("Appraisers Module API", () => {
       expect(res.status).toBe(201);
       const data = (await res.json()) as any;
       expect(data.appraiserId).toBe("550e8400-e29b-41d4-a716-446655440101");
-      expect(data.snapshotDate).toBe("2026-10-05");
+      expect(data.snapshotDate).toBe(todayStr);
       expect(data.isFrozen).toBe(false);
     });
 
@@ -218,7 +224,7 @@ describe("Appraisers Module API", () => {
 
       expect(res.status).toBe(400);
       const data = (await res.json()) as any;
-      expect(data.error).toContain("полис страхования");
+      expect(data.error).toContain("полиса страхования");
     });
 
     it("должен отказать, если у оценщика нет квалификационного аттестата", async () => {
@@ -235,7 +241,46 @@ describe("Appraisers Module API", () => {
 
       expect(res.status).toBe(400);
       const data = (await res.json()) as any;
-      expect(data.error).toContain("аттестат");
+      expect(data.error).toContain("аттестата");
+    });
+
+    it("должен отказать, если нет действующего полиса на дату отчёта", async () => {
+      const snapshot = createMockSnapshot(
+        "550e8400-e29b-41d4-a716-446655440103",
+      );
+      const lastYear = new Date().getFullYear() - 1;
+      (snapshot.data.insurance as any)[0].validDateTo = `${lastYear}-12-31`; // Истёк в прошлом году
+
+      const res = await reportsRouter.request(`/${testReportId}/appraisers`, {
+        method: "POST",
+        headers: AUTH_HEADERS,
+        body: JSON.stringify(snapshot),
+      });
+
+      expect(res.status).toBe(400);
+      const data = (await res.json()) as any;
+      expect(data.error).toContain("Нет действующего полиса страхования");
+    });
+
+    it("должен отказать, если нет действующего аттестата на дату отчёта", async () => {
+      const snapshot = createMockSnapshot(
+        "550e8400-e29b-41d4-a716-446655440104",
+      );
+      const lastYear = new Date().getFullYear() - 1;
+      (snapshot.data.qualificationCertificate as any)[0].validDateTo =
+        `${lastYear}-12-31`;
+
+      const res = await reportsRouter.request(`/${testReportId}/appraisers`, {
+        method: "POST",
+        headers: AUTH_HEADERS,
+        body: JSON.stringify(snapshot),
+      });
+
+      expect(res.status).toBe(400);
+      const data = (await res.json()) as any;
+      expect(data.error).toContain(
+        "Нет действующего квалификационного аттестата",
+      );
     });
 
     it("должен отказать при невалидных данных (отсутствует appraiserId)", async () => {
