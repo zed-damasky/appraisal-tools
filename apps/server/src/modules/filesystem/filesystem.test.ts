@@ -172,4 +172,107 @@ describe("Filesystem Module API", () => {
       expect(res.status).toBe(400);
     });
   });
+
+  describe("POST /open-folder", () => {
+    it("должен вернуть 401 без авторизации", async () => {
+      const res = await filesystemRoutes.request("/open-folder", {
+        method: "POST",
+        body: JSON.stringify({ path: testDir }),
+      });
+      expect(res.status).toBe(401);
+    });
+
+    it("должен отказать при пустом пути", async () => {
+      const res = await filesystemRoutes.request("/open-folder", {
+        method: "POST",
+        headers: AUTH_HEADERS,
+        body: JSON.stringify({ path: "" }),
+      });
+      expect(res.status).toBe(400);
+    });
+
+    it("должен отказать для несуществующей папки", async () => {
+      const res = await filesystemRoutes.request("/open-folder", {
+        method: "POST",
+        headers: AUTH_HEADERS,
+        body: JSON.stringify({ path: path.join(testDir, "nonexistent") }),
+      });
+
+      expect(res.status).toBe(400);
+      const data = (await res.json()) as any;
+      expect(data.error).toContain("не существует");
+    });
+
+    it("должен отказать, если путь указывает на файл, а не папку", async () => {
+      const filePath = path.join(testDir, "some-file.txt");
+      await fs.writeFile(filePath, "content");
+
+      const res = await filesystemRoutes.request("/open-folder", {
+        method: "POST",
+        headers: AUTH_HEADERS,
+        body: JSON.stringify({ path: filePath }),
+      });
+
+      expect(res.status).toBe(400);
+      const data = (await res.json()) as any;
+      expect(data.error).toContain("не является папкой");
+    });
+
+    it("должен отказать для системных папок (защита от открытия C:\\Windows)", async () => {
+      const forbiddenPath = "C:\\Windows";
+
+      const res = await filesystemRoutes.request("/open-folder", {
+        method: "POST",
+        headers: AUTH_HEADERS,
+        body: JSON.stringify({ path: forbiddenPath }),
+      });
+
+      expect(res.status).toBe(400);
+      const data = (await res.json()) as any;
+      expect(data.error).toContain("системным папкам");
+    });
+  });
+
+  describe("POST /open-file", () => {
+    it("должен вернуть 401 без авторизации", async () => {
+      const res = await filesystemRoutes.request("/open-file", {
+        method: "POST",
+        body: JSON.stringify({ path: testDir }),
+      });
+      expect(res.status).toBe(401);
+    });
+
+    it("должен отказать при пустом пути", async () => {
+      const res = await filesystemRoutes.request("/open-file", {
+        method: "POST",
+        headers: AUTH_HEADERS,
+        body: JSON.stringify({ path: "" }),
+      });
+      expect(res.status).toBe(400);
+    });
+
+    it("должен отказать для несуществующего файла", async () => {
+      const res = await filesystemRoutes.request("/open-file", {
+        method: "POST",
+        headers: AUTH_HEADERS,
+        body: JSON.stringify({ path: path.join(testDir, "nonexistent.txt") }),
+      });
+
+      expect(res.status).toBe(400);
+      const data = (await res.json()) as any;
+      expect(data.error).toContain("не существует");
+    });
+
+    it("должен отказать, если путь указывает на папку, а не файл", async () => {
+      const res = await filesystemRoutes.request("/open-file", {
+        method: "POST",
+        headers: AUTH_HEADERS,
+        body: JSON.stringify({ path: testDir }),
+      });
+
+      expect(res.status).toBe(400);
+      const data = (await res.json()) as any;
+      expect(data.error).toContain("не является файлом");
+    });
+  });
 });

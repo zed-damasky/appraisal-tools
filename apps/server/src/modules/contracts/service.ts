@@ -1,5 +1,5 @@
-import { getContracts, saveContracts, getReportsIndex } from "../services/storage";
-import { getBaseDir } from "../config";
+import { getContracts, saveContracts, getReportsIndex } from "../../services/storage";
+import { getBaseDir } from "../../config";
 import type { AppraisingContract } from "@appraisal/types";
 
 export async function getContractsList(): Promise<AppraisingContract[]> {

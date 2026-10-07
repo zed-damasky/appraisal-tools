@@ -4,12 +4,15 @@ import {
   createMarkerFile,
   verifyMarkerFile,
   listDirectory,
+  openFile,
+  openFolder,
 } from "./service";
 import {
   checkPathSchema,
   createMarkerSchema,
   verifyMarkerSchema,
   listDirectorySchema,
+  openPathSchema,
 } from "@appraisal/shared/src/schemas";
 
 const router = new Hono();
@@ -57,7 +60,10 @@ router.post("/create-marker", async (c) => {
     const markerData = await createMarkerFile(parsed.data.path);
     return c.json({ success: true, data: markerData }, 201);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Ошибка создания маркерного файла";
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Ошибка создания маркерного файла";
     return c.json({ error: message }, 400);
   }
 });
@@ -101,8 +107,59 @@ router.get("/list", async (c) => {
     const entries = await listDirectory(parsed.data.path);
     return c.json({ entries });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Ошибка чтения папки";
+    const message =
+      error instanceof Error ? error.message : "Ошибка чтения папки";
     return c.json({ error: message }, 400);
+  }
+});
+
+router.post("/open-folder", async (c) => {
+  const authError = requireAuth(c);
+  if (authError) return authError;
+
+  try {
+    const body = await c.req.json();
+    const parsed = openPathSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return c.json({ error: parsed.error.flatten() }, 400);
+    }
+
+    const result = await openFolder(parsed.data.path);
+
+    if (!result.success) {
+      return c.json({ error: result.error }, 400);
+    }
+
+    return c.json({ message: "Папка успешно открыта" });
+  } catch (error) {
+    console.error("Ошибка открытия папки:", error);
+    return c.json({ error: "Внутренняя ошибка сервера" }, 500);
+  }
+});
+
+router.post("/open-file", async (c) => {
+  const authError = requireAuth(c);
+  if (authError) return authError;
+
+  try {
+    const body = await c.req.json();
+    const parsed = openPathSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return c.json({ error: parsed.error.flatten() }, 400);
+    }
+
+    const result = await openFile(parsed.data.path);
+
+    if (!result.success) {
+      return c.json({ error: result.error }, 400);
+    }
+
+    return c.json({ message: "Файл успешно открыт" });
+  } catch (error) {
+    console.error("Ошибка открытия файла:", error);
+    return c.json({ error: "Внутренняя ошибка сервера" }, 500);
   }
 });
 

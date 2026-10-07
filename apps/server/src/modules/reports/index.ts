@@ -9,6 +9,7 @@ import { appraisersRouter } from "./appraisers/routes";
 import { reportDocumentsRouter } from "./report-documents/routes";
 import { reportPhotosRouter } from "./report-photos/routes";
 import { marketAnalysisDocumentsRouter } from "./market-analysis-documents/routes";
+import { streamingRouter } from "./streaming/routes";
 
 export const reportsRouter = new Hono();
 reportsRouter.route("/", coreRouter);
@@ -21,5 +22,6 @@ reportsRouter.route("/", appraisersRouter);
 reportsRouter.route("/", reportDocumentsRouter);
 reportsRouter.route("/", reportPhotosRouter);
 reportsRouter.route("/", marketAnalysisDocumentsRouter);
+reportsRouter.route("/", streamingRouter);
 
 export default reportsRouter;

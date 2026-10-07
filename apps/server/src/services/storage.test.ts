@@ -57,7 +57,16 @@ const createMockReport = (reportDir: string): AppraisingReport => ({
     externalSpecialist: "Нет",
     specificRequirements: [],
   },
-  marketAnalysis: [],
+      marketAnalysis: {
+      id: crypto.randomUUID(),
+      macroAnalysisChapter: [],
+      regionAnalysisChapter: [],
+      marketSegmentChapter: [],
+      analoguesChapter: [],
+      nhueChapter: [],
+      liquidityChapter: [],
+      marketConclusionsChapter: [],
+    },
   appraisers: [],
   files: {
     reportDir,

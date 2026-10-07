@@ -83,3 +83,8 @@ export const insuranceInformationSchema = z.object({
   validDateTo: z.string().min(1, "Укажите окончание действия"),
   insuredAmount: z.string().min(1, "Укажите страховую сумму"),
 });
+
+export const openPathSchema = z.object({
+  path: z.string().min(1, "Путь не может быть пустым"),
+});
+

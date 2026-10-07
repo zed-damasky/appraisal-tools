@@ -195,3 +195,71 @@ export async function ensureDirectory(dirPath: string): Promise<void> {
     await mkdir(dirPath, { recursive: true });
   }
 }
+
+export async function openFolder(
+  dirPath: string,
+): Promise<{ success: boolean; error?: string }> {
+  if (isForbiddenPath(dirPath)) {
+    return { success: false, error: "Доступ к системным папкам запрещён" };
+  }
+
+  if (!existsSync(dirPath)) {
+    return { success: false, error: "Папка не существует" };
+  }
+
+  try {
+    const stats = statSync(dirPath);
+    if (!stats.isDirectory()) {
+      return { success: false, error: "Указанный путь не является папкой" };
+    }
+
+    const platform = process.platform;
+
+    if (platform === "win32") {
+      await Bun.spawn(["explorer.exe", dirPath]);
+    } else if (platform === "darwin") {
+      await Bun.spawn(["open", dirPath]);
+    } else {
+      await Bun.spawn(["xdg-open", dirPath]);
+    }
+
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: `Не удалось открыть папку: ${error instanceof Error ? error.message : "Неизвестная ошибка"}`,
+    };
+  }
+}
+
+export async function openFile(
+  filePath: string,
+): Promise<{ success: boolean; error?: string }> {
+  if (!existsSync(filePath)) {
+    return { success: false, error: "Файл не существует" };
+  }
+
+  try {
+    const stats = statSync(filePath);
+    if (!stats.isFile()) {
+      return { success: false, error: "Указанный путь не является файлом" };
+    }
+
+    const platform = process.platform;
+
+    if (platform === "win32") {
+      await Bun.spawn(["cmd.exe", "/c", "start", "", filePath]);
+    } else if (platform === "darwin") {
+      await Bun.spawn(["open", filePath]);
+    } else {
+      await Bun.spawn(["xdg-open", filePath]);
+    }
+
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: `Не удалось открыть файл: ${error instanceof Error ? error.message : "Неизвестная ошибка"}`,
+    };
+  }
+}

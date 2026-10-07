@@ -1,6 +1,6 @@
 import { describe, expect, it, beforeEach, afterEach } from "bun:test";
 import { contractsRoutes } from "./routes";
-import { ensureAppStructure } from "../services/storage";
+import { ensureAppStructure } from "../../services/storage";
 import fs from "fs/promises";
 import path from "path";
 import os from "os";
