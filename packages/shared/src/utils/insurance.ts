@@ -1,7 +1,6 @@
 import type { InsuranceInformation } from "@appraisal/types";
 
 /**
- * Находит полис страхования, действовавший на указанную дату
  * @param insurances - Массив полисов
  * @param targetDate - Целевая дата (ISO string, например "2024-05-20")
  * @returns Актуальный полис или undefined, если ни один не подходит

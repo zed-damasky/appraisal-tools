@@ -23,8 +23,10 @@ export enum AllowedMimeType {
   JPEG = "image/jpeg",
   PNG = "image/png",
   WEBP = "image/webp",
-  HEIC = "image/heic", 
+  HEIC = "image/heic",
   PDF = "application/pdf",
+  DOC = "application/msword",
+  DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 }
 
 export interface Document {

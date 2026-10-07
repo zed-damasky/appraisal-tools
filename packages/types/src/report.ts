@@ -44,6 +44,7 @@ export interface SpecificRequirement {
 export interface MarketAnalysisChapter {
   id: string;
   path: string;
+  fileName?: string; 
 }
 
 export interface MarketAnalysis {
