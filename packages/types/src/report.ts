@@ -7,6 +7,7 @@ import {
   ObjectType,
   ReportStatus,
   ValuationApproach,
+  Document
 } from ".";
 
 export interface ReportFiles {
