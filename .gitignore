@@ -24,3 +24,4 @@ bun.lockb
 .husky/
 
 .backup
+.other_custom_things

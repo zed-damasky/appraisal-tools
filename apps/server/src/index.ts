@@ -8,8 +8,7 @@ import { settingsRoutes } from "./modules/settings/routes";
 import authRoutes from "./modules/auth";
 import { filesystemRoutes } from "./modules/filesystem/routes";
 import { contractsRoutes } from "./modules/contracts/routes";
-import reportsRouter from "./modules/reports"
-
+import reportsRouter from "./modules/reports";
 
 const app = new Hono();
 
@@ -34,6 +33,8 @@ app.route("/api/auth", authRoutes);
 app.route("/api/filesystem", filesystemRoutes);
 app.route("/api/contracts", contractsRoutes);
 app.route("/api/reports", reportsRouter);
+
+export type AppType = typeof app;
 
 async function startServer() {
   const baseDir =
