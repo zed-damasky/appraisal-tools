@@ -51,5 +51,9 @@ export const api = {
         body: JSON.stringify(data),
       }),
     getProfile: () => request("/api/auth/me"),
+    logout: () =>
+      request("/api/auth/logout", {
+        method: "POST",
+      }),
   },
 };

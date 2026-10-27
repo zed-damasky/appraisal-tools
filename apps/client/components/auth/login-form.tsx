@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import { Building2 } from "lucide-react";
 import { useState } from "react";
 import { ForgotPasswordModal } from "./forgot-password-modal";
+import { SeamlessPatternBackground } from "@/components/background/seamless-pattern-background";
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
@@ -74,11 +75,19 @@ export function LoginForm() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
-      {/* Горизонтальная карточка для десктопа */}
-      <Card className="[--card-spacing:0px] w-full max-w-4xl grid md:grid-cols-2 overflow-hidden shadow-2xl border-slate-200">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4 ">
+      <SeamlessPatternBackground
+        gradient={{ from: "#e0f2fe", to: "#bae6fd", angle: 13 }}
+        iconColor="#000fff"
+        tileSize={250}
+        iconsPerTile={9}
+        iconSize={28}
+        className="opacity-40"
+      />
+
+      <Card className="[--card-spacing:0px] w-full max-w-4xl grid md:grid-cols-2 overflow-hidden shadow-2xl border-slate-200 relative z-10 bg-white/95 backdrop-blur-sm">
         {/* Левая колонка: Брендинг */}
-        <div className="hidden md:flex flex-col items-center justify-center bg-blue-600 p-12 text-white space-y-6">
+        <div className="hidden md:flex flex-col items-center justify-center bg-blue-600 p-12 text-white space-y-6 relative z-10">
           <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white border-2 border-blue-800 shadow-[6px_6px_0px_rgba(30,58,138,0.4)]">
             <Building2 size={40} strokeWidth={2} className="text-blue-700" />
           </div>
@@ -96,7 +105,7 @@ export function LoginForm() {
         </div>
 
         {/* Правая колонка: Форма */}
-        <CardContent className="flex flex-col justify-center p-8 md:p-12 space-y-8">
+        <CardContent className="flex flex-col justify-center p-8 md:p-12 space-y-8 relative z-10">
           {/* Мобильный заголовок (виден только на md-) */}
           <div className="md:hidden text-center space-y-2 mb-4">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white">

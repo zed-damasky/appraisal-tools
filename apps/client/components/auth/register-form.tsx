@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Building2 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import { SeamlessPatternBackground } from "../background/seamless-pattern-background";
 
 const formSchema = registerSchema.omit({ appraiser: true }).extend({
   appraiser: registerSchema.shape.appraiser.omit({ id: true }),
@@ -184,7 +185,15 @@ export function RegisterForm() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
-      <Card className="[--card-spacing:0px] w-full max-w-5xl grid md:grid-cols-[1fr_1.5fr] overflow-hidden shadow-2xl border-slate-200">
+      <SeamlessPatternBackground
+        gradient={{ from: "#e0f2fe", to: "#bae6fd", angle: 13 }}
+        iconColor="#000fff"
+        tileSize={250}
+        iconsPerTile={9}
+        iconSize={28}
+        className="opacity-40"
+      />
+      <Card className="[--card-spacing:0px] z-10 w-full max-w-5xl grid md:grid-cols-[1fr_1.5fr] overflow-hidden shadow-2xl border-slate-200">
         {/* Левая колонка: Брендинг */}
         <div className="hidden md:flex flex-col items-center justify-center bg-blue-600 p-12 text-white space-y-6">
           <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white border-2 border-blue-800 shadow-[6px_6px_0px_rgba(30,58,138,0.4)]">
