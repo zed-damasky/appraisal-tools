@@ -37,6 +37,7 @@ app.route("/api/reports", reportsRouter);
 export type AppType = typeof app;
 
 async function startServer() {
+  
   const baseDir =
     process.env.BASE_DIR ||
     path.join(os.homedir(), "AppData", "Roaming", "AppraisalApp");

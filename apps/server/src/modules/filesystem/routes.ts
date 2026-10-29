@@ -6,6 +6,9 @@ import {
   listDirectory,
   openFile,
   openFolder,
+  getAvailableDrives,
+  createDirectory,
+  //removeDirectory,
 } from "./service";
 import {
   checkPathSchema,
@@ -162,5 +165,43 @@ router.post("/open-file", async (c) => {
     return c.json({ error: "Внутренняя ошибка сервера" }, 500);
   }
 });
+
+router.get("/drives", async (c) => {
+  const authError = requireAuth(c);
+  if (authError) return authError;
+
+  try {
+    const drives = getAvailableDrives();
+    return c.json({ drives });
+  } catch (error) {
+    console.error("Ошибка получения списка дисков:", error);
+    return c.json({ error: "Не удалось получить список дисков" }, 500);
+  }
+});
+
+router.post("/make-directory", async (c) => {
+  const authError = requireAuth(c);
+  if (authError) return authError;
+  const body = await c.req.json();
+  try {
+    await createDirectory(body.path);
+    return c.json({ success: true });
+  } catch (e) {
+    return c.json({ error: "Ошибка создания" }, 500);
+  }
+});
+/*
+router.delete("/remove-directory", async (c) => {
+  const authError = requireAuth(c);
+  if (authError) return authError;
+  const path = c.req.query("path");
+  try {
+    await removeDirectory(path || "");
+    return c.json({ success: true });
+  } catch (e) {
+    return c.json({ error: "Ошибка удаления" }, 500);
+  }
+});
+*/
 
 export const filesystemRoutes = router;

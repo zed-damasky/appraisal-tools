@@ -51,8 +51,8 @@ export function DashboardHeader() {
           <div className="flex items-center gap-4">
             <DropdownMenu>
               <DropdownMenuTrigger>
-                <div className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100 transition-colors cursor-pointer">
-                  <span className="text-sm font-medium text-slate-700">
+                <div className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent/20  transition-colors cursor-pointer ">
+                  <span className="text-sm font-medium text-black ">
                     {user?.fullName || "Пользователь"}
                   </span>
                 </div>
@@ -69,9 +69,10 @@ export function DashboardHeader() {
 
                   <DropdownMenuItem
                     onClick={() => setIsSettingsOpen(true)}
-                    className="cursor-pointer text-sm text-slate-700"
+                    className="cursor-pointer text-sm text-black"
+
                   >
-                    <Settings className="mr-2 h-4 w-4 " />
+                    <Settings className="mr-2 h-4 w-4" />
                     <span>Настройки</span>
                   </DropdownMenuItem>
 

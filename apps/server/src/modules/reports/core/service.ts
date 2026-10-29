@@ -60,11 +60,20 @@ export async function createReport(data: {
   const now = new Date().toISOString();
   const reportId = crypto.randomUUID();
 
-  const dateStr = now.split("T")[0].replace(/-/g, "");
-  const folderName = `Отчёт_${data.reportSequenceNumber}_${dateStr}`;
-  const fullReportDir = path.join(data.reportDir, folderName);
+  if (!path.isAbsolute(data.reportDir)) {
+    throw new Error(
+      `Путь к директории отчёта должен быть абсолютным. Получен относительный путь: "${data.reportDir}". ` +
+        `Пример правильного пути: "F:\\test-report-dir" или "/home/user/reports"`,
+    );
+  }
 
-  await ensureReportStructure(fullReportDir);
+  const normalizedReportDir = path.normalize(data.reportDir);
+
+  if (!path.isAbsolute(normalizedReportDir)) {
+    throw new Error("После нормализации путь всё ещё не является абсолютным");
+  }
+
+  await ensureReportStructure(normalizedReportDir);
 
   const initialReport: AppraisingReport = {
     id: reportId,
@@ -104,8 +113,8 @@ export async function createReport(data: {
     },
     appraisers: [],
     files: {
-      reportDir: fullReportDir,
-      folderName,
+      reportDir: normalizedReportDir,
+      folderName: path.basename(normalizedReportDir),
       photos: [],
       docs: [],
     },
@@ -187,13 +196,15 @@ export async function duplicateReport(
   const now = new Date().toISOString();
   const newReportId = crypto.randomUUID();
   const newSequenceNumber = `${originalReport.metadata.reportSequenceNumber} (копия)`;
+
+  const originalDir = originalReport.files.reportDir;
+  const parentDir = path.dirname(originalDir);
+  const normalizedParentDir = path.resolve(parentDir);
+
   const dateStr = now.split("T")[0].replace(/-/g, "");
   const newFolderName = `Отчёт_${newSequenceNumber}_${dateStr}`;
+  const newReportDir = path.join(normalizedParentDir, newFolderName);
 
-  const newReportDir = path.join(
-    path.dirname(originalReport.files.reportDir),
-    newFolderName,
-  );
   await ensureReportStructure(newReportDir);
 
   const clonedReport: AppraisingReport = {

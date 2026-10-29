@@ -27,6 +27,20 @@ const getStatusLabel = (status: ReportStatus) => {
   return labels[status] || status;
 };
 
+const objectTypeLabels: Record<string, string> = {
+  immovable_property: "Недвижимость",
+  movable_property: "Движимое имущество",
+  business: "Бизнес",
+};
+
+const getObjectTypesDisplay = (types: string[]) => {
+  if (!types || types.length === 0) return "—";
+
+  const uniqueLabels = [...new Set(types.map((t) => objectTypeLabels[t] || t))];
+
+  return uniqueLabels.join(", ");
+};
+
 export function ReportRow({ report }: ReportRowProps) {
   const [contextMenuOpen, setContextMenuOpen] = useState(false);
   const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
@@ -49,12 +63,15 @@ export function ReportRow({ report }: ReportRowProps) {
           {new Date(report.createdAt).toLocaleDateString()}
         </TableCell>
 
-        <TableCell className="max-w-50 truncate" title={report.title}>
+        <TableCell
+          className="max-w-50 truncate hidden md:table-cell"
+          title={report.title}
+        >
           {report.title}
         </TableCell>
 
-        <TableCell className="w-30">
-          {report.objectTypes.length > 0 ? `${report.objectTypes[0]})` : "—"}
+        <TableCell className="w-30 hidden md:table-cell">
+          {getObjectTypesDisplay(report.objectTypes)}
         </TableCell>
 
         <TableCell className="w-30">

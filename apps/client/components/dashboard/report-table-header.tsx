@@ -8,10 +8,9 @@ export function ReportTableHeader() {
       <TableRow>
         <TableHead className="">Номер</TableHead>
         <TableHead className="w-30">Дата создания</TableHead>
-        <TableHead>Название объекта</TableHead>
-        <TableHead className="w-30">Тип объекта</TableHead>
+        <TableHead className="hidden md:table-cell">Название объекта</TableHead>
+        <TableHead className="w-30 hidden md:table-cell">Тип объекта</TableHead>
         <TableHead className="w-30">Статус</TableHead>
-
       </TableRow>
     </TableHeader>
   );

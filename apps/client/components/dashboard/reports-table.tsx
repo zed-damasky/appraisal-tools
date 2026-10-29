@@ -43,7 +43,6 @@ export function ReportsTable() {
   const [searchValue, setSearchValue] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  // Простая фильтрация на клиенте
   const filteredReports = mockReports.filter((report) => {
     const matchesSearch =
       report.title.toLowerCase().includes(searchValue.toLowerCase()) ||
@@ -65,9 +64,9 @@ export function ReportsTable() {
         tileSize={250}
         iconsPerTile={9}
         iconSize={28}
-        className="opacity-10"
+        className="opacity-50"
       />
-      <div className="z-10 ">
+      <div className=" ">
         <ReportControls
           searchValue={searchValue}
           onSearchChange={setSearchValue}
@@ -79,7 +78,7 @@ export function ReportsTable() {
         <div className="rounded-md border">
           <Table>
             <ReportTableHeader />
-            <TableBody>
+            <TableBody className="bg-slate-50">
               {filteredReports.length > 0 ? (
                 filteredReports.map((report) => (
                   <ReportRow key={report.id} report={report} />

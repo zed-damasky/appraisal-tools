@@ -1,5 +1,5 @@
 import { existsSync, statSync, constants } from "fs";
-import { access, mkdir, readdir, writeFile, readFile } from "fs/promises";
+import { access, mkdir, readdir, writeFile, readFile, rm } from "fs/promises";
 import path from "path";
 import type { MarkerData } from "@appraisal/shared/src/schemas";
 
@@ -29,11 +29,35 @@ export interface DirectoryEntry {
   size?: number;
 }
 
+
+
 function isForbiddenPath(dirPath: string): boolean {
   const normalizedPath = path.normalize(dirPath).toLowerCase();
   return FORBIDDEN_PATHS.some((forbidden) =>
     normalizedPath.startsWith(forbidden.toLowerCase()),
   );
+}
+
+export function getAvailableDrives(): string[] {
+  const platform = process.platform;
+
+  if (platform === "win32") {
+    const drives: string[] = [];
+    for (let i = 65; i <= 90; i++) {
+      const driveLetter = String.fromCharCode(i);
+      const drivePath = `${driveLetter}:\\`;
+
+      if (existsSync(drivePath)) {
+        try {
+          statSync(drivePath);
+          drives.push(drivePath);
+        } catch (e) {}
+      }
+    }
+    return drives;
+  }
+  //проверить на линуксе / маке это место
+  return ["/"];
 }
 
 export async function checkDirectory(
@@ -263,3 +287,12 @@ export async function openFile(
     };
   }
 }
+
+export async function createDirectory(dirPath: string): Promise<void> {
+  await mkdir(dirPath, { recursive: true });
+}
+/*
+export async function removeDirectory(dirPath: string): Promise<void> {
+  await rm(dirPath, { recursive: true, force: true });
+}
+*/

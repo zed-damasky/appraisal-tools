@@ -13,6 +13,7 @@ interface AuthState {
   login: (user: AppraiserProfile, token: string) => void;
   logout: () => void;
   updateUser: (userData: Partial<AppraiserProfile>) => void;
+  init: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -21,6 +22,13 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       token: null,
       isAuthenticated: false,
+
+      init: () => {
+        const token = Cookies.get('auth_token');
+        if (token && !get().token) {
+          set({ token, isAuthenticated: true });
+        }
+      },
 
       login: (user, token) => {
         Cookies.set("auth_token", token, { expires: 7, path: "/" });
