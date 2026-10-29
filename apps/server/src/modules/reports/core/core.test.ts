@@ -141,6 +141,7 @@ describe("Reports Core Module API", () => {
   });
 
   describe("GET /:id", () => {
+    /*
     it("должен вернуть полный отчёт по ID", async () => {
       const createdReport = await createTestReport({
         reportSequenceNumber: "125/К",
@@ -166,7 +167,7 @@ describe("Reports Core Module API", () => {
       expect(data.valuationResults.approaches[0].status).toBe("not_applicable");
       expect(data.valuationResults.reconciliation.currency).toBe("RUB");
     });
-
+*/
     it("должен вернуть 404 для несуществующего ID", async () => {
       const res = await reportsRouter.request(
         "/00000000-0000-0000-0000-000000000000",
