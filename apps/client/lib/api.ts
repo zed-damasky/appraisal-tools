@@ -83,6 +83,7 @@ export const api = {
         method: "POST",
         body: JSON.stringify(data),
       }),
+      list: () => request<AppraisingReportIndexData[]>("/api/reports"),
   },
   filesystem: {
     list: async (path: string): Promise<ListDirectoryResponse> => {

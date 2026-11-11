@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createAppraisingReportSchema } from "@appraisal/shared/src/schemas";
 import { api, type CreateReportInput } from "@/lib/api";
 import { toast } from "sonner";
-import { FolderOpen, CheckCircle2, AlertCircle } from "lucide-react";
+import { FolderOpen, AlertCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { LocalPathPicker } from "@/components/local-path-picker/local-path-picker";
+import { cn } from "@/lib/utils";
 
 interface CreateReportDialogProps {
   open: boolean;
@@ -39,6 +40,8 @@ export function CreateReportDialog({
   const [isPathPickerOpen, setIsPathPickerOpen] = useState(false);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showForbiddenCharsWarning, setShowForbiddenCharsWarning] =
+    useState(false);
 
   const handleSubmit = async () => {
     if (isSubmitting) return;
@@ -115,8 +118,7 @@ export function CreateReportDialog({
         <DialogHeader>
           <DialogTitle>Создание нового отчёта</DialogTitle>
           <DialogDescription>
-            Укажите номер отчёта и выберите папку для хранения файлов через
-            встроенный проводник.
+            Укажите номер отчёта и выберите рабочую папку.
           </DialogDescription>
         </DialogHeader>
 
@@ -129,19 +131,44 @@ export function CreateReportDialog({
               placeholder="Например: 001-2026"
               value={reportSequenceNumber}
               onChange={(e) => {
-                setReportSequenceNumber(e.target.value);
-                if (errors.reportSequenceNumber)
+                const rawValue = e.target.value;
+                const hasForbidden = /[<>:"/\\|?*]/.test(rawValue);
+
+                const sanitized = rawValue.replace(/[<>:"/\\|?*]/g, "");
+                setReportSequenceNumber(sanitized);
+
+                if (hasForbidden) {
+                  setShowForbiddenCharsWarning(true);
+                  setTimeout(() => setShowForbiddenCharsWarning(false), 3000);
+                } else {
+                  setShowForbiddenCharsWarning(false);
+                }
+
+                if (errors.reportSequenceNumber) {
                   setErrors((prev) => ({ ...prev, reportSequenceNumber: "" }));
+                }
               }}
-              className={
-                errors.reportSequenceNumber
-                  ? "border-red-500 focus-visible:ring-red-500"
-                  : ""
-              }
+              className={cn(
+                errors.reportSequenceNumber &&
+                  "border-red-500 focus-visible:ring-red-500",
+                showForbiddenCharsWarning &&
+                  "animate-shake border-orange-500 focus-visible:ring-orange-500",
+              )}
             />
-            {errors.reportSequenceNumber && (
+
+            {/* Уведомление о запрещенных символах */}
+            {showForbiddenCharsWarning && (
+              <p className="text-sm text-orange-600 flex items-center gap-1 animate-in fade-in slide-in-from-top-1 duration-200">
+                <AlertCircle className="h-3 w-3 shrink-0" />
+                Символы &lt; &gt; : &quot; / \ | ? * нельзя использовать в
+                номере отчёта
+              </p>
+            )}
+
+            {/* Обычная ошибка валидации (например, пустое поле) */}
+            {errors.reportSequenceNumber && !showForbiddenCharsWarning && (
               <p className="text-sm text-red-500 flex items-center gap-1">
-                <AlertCircle className="h-3 w-3" />{" "}
+                <AlertCircle className="h-3 w-3 shrink-0" />{" "}
                 {errors.reportSequenceNumber}
               </p>
             )}

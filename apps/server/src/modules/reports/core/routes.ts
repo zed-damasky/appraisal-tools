@@ -16,18 +16,24 @@ import {
   appraisingReportSchema,
 } from "@appraisal/shared/src/schemas";
 import type { AppraisingReport } from "@appraisal/types";
+import { requireAuth } from "../../auth/session";
 
-export const coreRouter = new Hono();
+export const coreRouter = new Hono<{
+  Variables: { appraiserId: string };
+}>();
 
+/*
 function requireAuth(c: any) {
   const authHeader = c.req.header("Authorization");
   if (!authHeader) return c.json({ error: "Не авторизован" }, 401);
   return null;
 }
-
+*/
 coreRouter.get("/", async (c) => {
-  const authError = requireAuth(c);
+  const authError = await requireAuth(c);
   if (authError) return authError;
+
+  const appraiserId = c.get("appraiserId");
 
   try {
     const status = c.req.query("status");
@@ -41,7 +47,12 @@ coreRouter.get("/", async (c) => {
       return c.json({ error: "Невалидный тип объекта" }, 400);
     }
 
-    const reports = await getReportsList({ status: status as any, objectType, search });
+    const reports = await getReportsList({
+      appraiserId,
+      status: status as any,
+      objectType,
+      search,
+    });
     return c.json(reports);
   } catch (error) {
     console.error("Ошибка получения списка отчётов:", error);
@@ -50,17 +61,27 @@ coreRouter.get("/", async (c) => {
 });
 
 coreRouter.get("/:id", async (c) => {
-  const authError = requireAuth(c);
+  const authError = await requireAuth(c);
   if (authError) return authError;
+
+  const appraiserId = c.get("appraiserId");
 
   try {
     const reportId = c.req.param("id");
-    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(reportId)) {
+    if (
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        reportId,
+      )
+    ) {
       return c.json({ error: "Невалидный ID отчёта" }, 400);
     }
 
     const report = await getReportById(reportId);
     if (!report) return c.json({ error: "Отчёт не найден" }, 404);
+
+    if (report.metadata.appraiserId !== appraiserId) {
+      return c.json({ error: "Доступ запрещён" }, 403);
+    }
 
     return c.json(report);
   } catch (error) {
@@ -70,8 +91,10 @@ coreRouter.get("/:id", async (c) => {
 });
 
 coreRouter.post("/", async (c) => {
-  const authError = requireAuth(c);
+  const authError = await requireAuth(c);
   if (authError) return authError;
+
+  const appraiserId = c.get("appraiserId");
 
   try {
     const body = await c.req.json();
@@ -79,22 +102,38 @@ coreRouter.post("/", async (c) => {
 
     if (!parsed.success) return c.json({ error: parsed.error.flatten() }, 400);
 
-    const newReportIndex = await createReport(parsed.data);
+    const newReportIndex = await createReport(parsed.data, appraiserId);
     return c.json(newReportIndex, 201);
   } catch (error) {
     console.error("Ошибка создания отчёта:", error);
-    return c.json({ error: "Внутренняя ошибка сервера при создании отчёта" }, 500);
+    return c.json(
+      { error: "Внутренняя ошибка сервера при создании отчёта" },
+      500,
+    );
   }
 });
 
 coreRouter.put("/:id", async (c) => {
-  const authError = requireAuth(c);
+  const authError = await requireAuth(c);
   if (authError) return authError;
+
+  const appraiserId = c.get("appraiserId");
 
   try {
     const reportId = c.req.param("id");
-    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(reportId)) {
+    if (
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        reportId,
+      )
+    ) {
       return c.json({ error: "Невалидный ID отчёта" }, 400);
+    }
+
+    const existingReport = await getReportById(reportId);
+    if (!existingReport) return c.json({ error: "Отчёт не найден" }, 404);
+
+    if (existingReport.metadata.appraiserId !== appraiserId) {
+      return c.json({ error: "Доступ запрещён" }, 403);
     }
 
     const body = await c.req.json();
@@ -102,24 +141,41 @@ coreRouter.put("/:id", async (c) => {
 
     if (!parsed.success) return c.json({ error: parsed.error.flatten() }, 400);
 
-    const updatedReport = await updateReport(reportId, parsed.data as Partial<AppraisingReport>);
-    if (!updatedReport) return c.json({ error: "Отчёт не найден" }, 404);
-
+    const updatedReport = await updateReport(
+      reportId,
+      parsed.data as Partial<AppraisingReport>,
+    );
     return c.json(updatedReport);
   } catch (error) {
     console.error("Ошибка обновления отчёта:", error);
-    return c.json({ error: "Внутренняя ошибка сервера при обновлении отчёта" }, 500);
+    return c.json(
+      { error: "Внутренняя ошибка сервера при обновлении отчёта" },
+      500,
+    );
   }
 });
 
 coreRouter.delete("/:id", async (c) => {
-  const authError = requireAuth(c);
+  const authError = await requireAuth(c);
   if (authError) return authError;
+
+  const appraiserId = c.get("appraiserId");
 
   try {
     const reportId = c.req.param("id");
-    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(reportId)) {
+    if (
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        reportId,
+      )
+    ) {
       return c.json({ error: "Невалидный ID отчёта" }, 400);
+    }
+
+    const existingReport = await getReportById(reportId);
+    if (!existingReport) return c.json({ error: "Отчёт не найден" }, 404);
+
+    if (existingReport.metadata.appraiserId !== appraiserId) {
+      return c.json({ error: "Доступ запрещён" }, 403);
     }
 
     const success = await deleteReportById(reportId);
@@ -128,38 +184,72 @@ coreRouter.delete("/:id", async (c) => {
     return c.json({ message: "Отчёт успешно удалён" });
   } catch (error) {
     console.error("Ошибка удаления отчёта:", error);
-    return c.json({ error: "Внутренняя ошибка сервера при удалении отчёта" }, 500);
+    return c.json(
+      { error: "Внутренняя ошибка сервера при удалении отчёта" },
+      500,
+    );
   }
 });
 
 coreRouter.post("/:id/duplicate", async (c) => {
-  const authError = requireAuth(c);
+  const authError = await requireAuth(c);
   if (authError) return authError;
+
+  const appraiserId = c.get("appraiserId");
 
   try {
     const reportId = c.req.param("id");
-    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(reportId)) {
+    if (
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        reportId,
+      )
+    ) {
       return c.json({ error: "Невалидный ID отчёта" }, 400);
     }
 
-    const duplicatedReport = await duplicateReport(reportId);
-    if (!duplicatedReport) return c.json({ error: "Исходный отчёт не найден" }, 404);
+    const existingReport = await getReportById(reportId);
+    if (!existingReport)
+      return c.json({ error: "Исходный отчёт не найден" }, 404);
+
+    if (existingReport.metadata.appraiserId !== appraiserId) {
+      return c.json({ error: "Доступ запрещён" }, 403);
+    }
+
+    const duplicatedReport = await duplicateReport(reportId, appraiserId);
+    if (!duplicatedReport)
+      return c.json({ error: "Ошибка при дублировании" }, 500);
 
     return c.json(duplicatedReport, 201);
   } catch (error) {
     console.error("Ошибка дублирования отчёта:", error);
-    return c.json({ error: "Внутренняя ошибка сервера при дублировании отчёта" }, 500);
+    return c.json(
+      { error: "Внутренняя ошибка сервера при дублировании отчёта" },
+      500,
+    );
   }
 });
 
 coreRouter.patch("/:id/status", async (c) => {
-  const authError = requireAuth(c);
+  const authError = await requireAuth(c);
   if (authError) return authError;
+
+  const appraiserId = c.get("appraiserId");
 
   try {
     const reportId = c.req.param("id");
-    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(reportId)) {
+    if (
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        reportId,
+      )
+    ) {
       return c.json({ error: "Невалидный ID отчёта" }, 400);
+    }
+
+    const existingReport = await getReportById(reportId);
+    if (!existingReport) return c.json({ error: "Отчёт не найден" }, 404);
+
+    if (existingReport.metadata.appraiserId !== appraiserId) {
+      return c.json({ error: "Доступ запрещён" }, 403);
     }
 
     const body = await c.req.json();
@@ -167,12 +257,16 @@ coreRouter.patch("/:id/status", async (c) => {
 
     if (!parsed.success) return c.json({ error: parsed.error.flatten() }, 400);
 
-    const updatedReport = await changeReportStatus(reportId, parsed.data.status);
-    if (!updatedReport) return c.json({ error: "Отчёт не найден" }, 404);
-
+    const updatedReport = await changeReportStatus(
+      reportId,
+      parsed.data.status,
+    );
     return c.json(updatedReport);
   } catch (error) {
     console.error("Ошибка смены статуса отчёта:", error);
-    return c.json({ error: "Внутренняя ошибка сервера при смене статуса" }, 500);
+    return c.json(
+      { error: "Внутренняя ошибка сервера при смене статуса" },
+      500,
+    );
   }
 });

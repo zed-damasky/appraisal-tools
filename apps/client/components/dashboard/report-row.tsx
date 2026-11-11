@@ -11,10 +11,13 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface ReportRowProps {
   report: AppraisingReportIndexData;
 }
+
+
 
 const getStatusLabel = (status: ReportStatus) => {
   const labels: Record<ReportStatus, string> = {
@@ -44,6 +47,7 @@ const getObjectTypesDisplay = (types: string[]) => {
 export function ReportRow({ report }: ReportRowProps) {
   const [contextMenuOpen, setContextMenuOpen] = useState(false);
   const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
+  const router = useRouter();
 
   return (
     <ContextMenu open={contextMenuOpen} onOpenChange={setContextMenuOpen}>
@@ -91,7 +95,11 @@ export function ReportRow({ report }: ReportRowProps) {
           top: contextMenuPos.y,
         }}
       >
-        <ContextMenuItem onClick={() => console.log("Открыть", report.id)}>
+        <ContextMenuItem onClick={() => {
+          router.push(`/dashboard/report/${report.id}`);
+          console.log("Открыть", report.id)}
+        }
+        >
           Открыть отчёт
         </ContextMenuItem>
         <ContextMenuItem onClick={() => console.log("Дублировать", report.id)}>
@@ -106,7 +114,10 @@ export function ReportRow({ report }: ReportRowProps) {
         <ContextMenuSeparator />
         <ContextMenuItem
           className="text-red-600 focus:text-red-600"
-          onClick={() => console.log("Удалить", report.id)}
+          onClick={() => {
+            
+            console.log("Удалить", report.id)}
+          }
         >
           Удалить
         </ContextMenuItem>

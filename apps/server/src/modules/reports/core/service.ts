@@ -14,6 +14,7 @@ import type {
 } from "@appraisal/types";
 
 export async function getReportsList(filters?: {
+  appraiserId?: string;
   status?: ReportStatus;
   objectType?: string;
   search?: string;
@@ -24,6 +25,9 @@ export async function getReportsList(filters?: {
   if (!filters) return index;
 
   return index.filter((report) => {
+    if (filters.appraiserId && report.appraiserId !== filters.appraiserId)
+      return false;
+
     if (filters.status && report.status !== filters.status) return false;
     if (
       filters.objectType &&
@@ -50,12 +54,15 @@ export async function getReportById(
   return await getReport(baseDir, reportId);
 }
 
-export async function createReport(data: {
-  reportSequenceNumber: string;
-  clientName: string;
-  reportDir: string;
-  appraisingContractId: string;
-}): Promise<AppraisingReportIndexData> {
+export async function createReport(
+  data: {
+    reportSequenceNumber: string;
+    clientName: string;
+    reportDir: string;
+    appraisingContractId: string;
+  },
+  appraiserId: string,
+): Promise<AppraisingReportIndexData> {
   const baseDir = getBaseDir();
   const now = new Date().toISOString();
   const reportId = crypto.randomUUID();
@@ -84,6 +91,7 @@ export async function createReport(data: {
       reportDatePreperation: now.split("T")[0],
       appraisingContractId: data.appraisingContractId,
       appraisingReportId: reportId,
+      appraiserId: appraiserId,
     },
     reportTask: {
       id: crypto.randomUUID(),
@@ -184,6 +192,7 @@ export async function deleteReportById(reportId: string): Promise<boolean> {
 
 export async function duplicateReport(
   reportId: string,
+  appraiserId: string,
 ): Promise<AppraisingReportIndexData | null> {
   const baseDir = getBaseDir();
   const originalReport = await getReport(baseDir, reportId);
@@ -214,6 +223,7 @@ export async function duplicateReport(
     metadata: {
       ...originalReport.metadata,
       id: newReportId,
+      appraiserId: appraiserId,
       reportSequenceNumber: newSequenceNumber,
       reportDatePreperation: now.split("T")[0],
       appraisingReportId: newReportId,

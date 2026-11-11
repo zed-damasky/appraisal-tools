@@ -148,6 +148,7 @@ export const appraisingReportTaskSchema = z.object({
 
 export const appraisingReportMetadataSchema = z.object({
   id: z.uuid("ID должен быть UUID"),
+  appraiserId: z.uuid("ID оценщика должен быть UUID"),
   reportSequenceNumber: z.string().min(1, "Укажите порядковый номер отчёта"),
   reportDatePreperation: z.string().min(1, "Укажите дату составления отчёта"),
   appraisingContractId: z.uuid("ID договора должен быть UUID"),

@@ -97,6 +97,7 @@ export interface AppraisingReportTask {
 
 export interface AppraisingReportMetadata {
   id: string;
+  appraiserId: string
   reportSequenceNumber: string;
   reportDatePreperation: string;
   appraisingContractId: string;

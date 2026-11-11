@@ -1,49 +1,45 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Table, TableBody } from "@/components/ui/table";
 import { ReportRow } from "./report-row";
 import { ReportTableHeader } from "./report-table-header";
 import { ReportControls } from "./report-controls";
 import { AppraisingReportIndexData } from "@appraisal/types";
 import { SeamlessPatternBackground } from "../background/seamless-pattern-background";
-
-const mockReports: AppraisingReportIndexData[] = [
-  {
-    id: "1",
-    reportSequenceNumber: "001-2026",
-    reportDatePreperation: "2026-10-25",
-    appraisingContractId: "c1",
-    appraisingReportId: "r1",
-    title: "Квартира на ул. Ленина, 15",
-    status: "completed",
-    objectTypes: ["immovable_property"],
-    clientName: "Иванов И.И.",
-    reportDir: "/reports/001",
-    createdAt: "2026-10-25T10:00:00Z",
-    updatedAt: "2026-10-26T12:00:00Z",
-  },
-  {
-    id: "2",
-    reportSequenceNumber: "002-2026",
-    reportDatePreperation: "2026-10-26",
-    appraisingContractId: "c2",
-    appraisingReportId: "r2",
-    title: "Toyota Camry 2020",
-    status: "in_progress",
-    objectTypes: ["movable_property"],
-    clientName: "Петров П.П.",
-    reportDir: "/reports/002",
-    createdAt: "2026-10-26T09:00:00Z",
-    updatedAt: "2026-10-26T09:00:00Z",
-  },
-];
+import { useAuthStore } from "@/lib/stores/use-auth-store";
+import { api } from "@/lib/api";
 
 export function ReportsTable() {
+
+  const [reports, setReports] = useState<AppraisingReportIndexData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const { token } = useAuthStore();
+
   const [searchValue, setSearchValue] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const filteredReports = mockReports.filter((report) => {
+   useEffect(() => {
+    const loadReports = async () => {
+      if (!token) return;
+      
+      try {
+        setIsLoading(true);
+        const data = await api.reports.list(); 
+        setReports(data);
+      } catch (error) {
+        console.error("Ошибка загрузки отчётов:", error);
+        setReports([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadReports();
+  }, [token]);
+
+  const filteredReports = reports.filter((report) => {
     const matchesSearch =
       report.title.toLowerCase().includes(searchValue.toLowerCase()) ||
       report.reportSequenceNumber.includes(searchValue);
