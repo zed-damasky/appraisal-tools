@@ -12,12 +12,12 @@ import {
 } from "@/components/ui/context-menu";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { api } from "@/lib/api";
 
 interface ReportRowProps {
   report: AppraisingReportIndexData;
+  onDeleted?: (reportId: string) => void;
 }
-
-
 
 const getStatusLabel = (status: ReportStatus) => {
   const labels: Record<ReportStatus, string> = {
@@ -44,10 +44,29 @@ const getObjectTypesDisplay = (types: string[]) => {
   return uniqueLabels.join(", ");
 };
 
-export function ReportRow({ report }: ReportRowProps) {
+export function ReportRow({ report, onDeleted }: ReportRowProps) {
   const [contextMenuOpen, setContextMenuOpen] = useState(false);
   const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
+  const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
+
+  const handleDelete = async () => {
+    if (isDeleting) return;
+    if (!confirm(`Удалить отчёт «${report.title}»?`)) return;
+
+    try {
+      setIsDeleting(true);
+      await api.reports.remove(report.id);
+      onDeleted?.(report.id);
+    } catch (error) {
+      console.error("Ошибка удаления отчёта:", error);
+      alert(
+        error instanceof Error ? error.message : "Не удалось удалить отчёт",
+      );
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <ContextMenu open={contextMenuOpen} onOpenChange={setContextMenuOpen}>
@@ -95,10 +114,11 @@ export function ReportRow({ report }: ReportRowProps) {
           top: contextMenuPos.y,
         }}
       >
-        <ContextMenuItem onClick={() => {
-          router.push(`/dashboard/report/${report.id}`);
-          console.log("Открыть", report.id)}
-        }
+        <ContextMenuItem
+          onClick={() => {
+            router.push(`/dashboard/report/${report.id}`);
+            console.log("Открыть", report.id);
+          }}
         >
           Открыть отчёт
         </ContextMenuItem>
@@ -114,12 +134,13 @@ export function ReportRow({ report }: ReportRowProps) {
         <ContextMenuSeparator />
         <ContextMenuItem
           className="text-red-600 focus:text-red-600"
-          onClick={() => {
-            
-            console.log("Удалить", report.id)}
-          }
+          disabled={isDeleting}
+          onSelect={(e) => {
+            e.preventDefault();
+            handleDelete();
+          }}
         >
-          Удалить
+          {isDeleting ? "Удаление..." : "Удалить"}
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>

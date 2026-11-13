@@ -83,7 +83,13 @@ export const api = {
         method: "POST",
         body: JSON.stringify(data),
       }),
-      list: () => request<AppraisingReportIndexData[]>("/api/reports"),
+
+    remove: (id: string) =>
+      request<{ message: string }>(`/api/reports/${id}`, {
+        method: "DELETE",
+      }),
+
+    list: () => request<AppraisingReportIndexData[]>("/api/reports"),
   },
   filesystem: {
     list: async (path: string): Promise<ListDirectoryResponse> => {
@@ -116,7 +122,7 @@ export const api = {
         body: JSON.stringify({ path }),
       });
     },
-/*
+    /*
     removeDirectory: async (path: string) => {
       return request("/api/filesystem/remove-directory", {
         method: "DELETE",

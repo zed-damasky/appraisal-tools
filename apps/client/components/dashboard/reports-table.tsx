@@ -11,7 +11,6 @@ import { useAuthStore } from "@/lib/stores/use-auth-store";
 import { api } from "@/lib/api";
 
 export function ReportsTable() {
-
   const [reports, setReports] = useState<AppraisingReportIndexData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -20,13 +19,13 @@ export function ReportsTable() {
   const [searchValue, setSearchValue] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
-   useEffect(() => {
+  useEffect(() => {
     const loadReports = async () => {
       if (!token) return;
-      
+
       try {
         setIsLoading(true);
-        const data = await api.reports.list(); 
+        const data = await api.reports.list();
         setReports(data);
       } catch (error) {
         console.error("Ошибка загрузки отчётов:", error);
@@ -50,6 +49,11 @@ export function ReportsTable() {
 
   const handleCreateReport = () => {
     console.log("Создание нового отчёта...");
+  };
+
+  const handleReportDeleted = (reportId: string) => {
+    setReports((prev) => prev.filter((r) => r.id !== reportId));
+    console.log(`Удаление ${reportId}`);
   };
 
   return (
@@ -77,7 +81,11 @@ export function ReportsTable() {
             <TableBody className="bg-slate-50">
               {filteredReports.length > 0 ? (
                 filteredReports.map((report) => (
-                  <ReportRow key={report.id} report={report} />
+                  <ReportRow
+                    key={report.id}
+                    report={report}
+                    onDeleted={handleReportDeleted}
+                  />
                 ))
               ) : (
                 <tr>
