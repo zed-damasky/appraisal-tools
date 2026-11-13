@@ -135,7 +135,7 @@ export function ReportRow({ report, onDeleted }: ReportRowProps) {
         <ContextMenuItem
           className="text-red-600 focus:text-red-600"
           disabled={isDeleting}
-          onSelect={(e) => {
+          onClick={(e) => {
             e.preventDefault();
             handleDelete();
           }}
